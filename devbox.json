@@ -1,6 +1,7 @@
 {
   "packages": [
-    "nodejs@latest"
+    "nodejs@latest",
+    "go@latest"
   ],
   "shell": {
     "init_hook": [
