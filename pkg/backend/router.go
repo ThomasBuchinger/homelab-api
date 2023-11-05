@@ -13,7 +13,7 @@ func handlePing(c *gin.Context) {
 func SetupApi(r *gin.Engine) *gin.Engine {
 
 	r.GET("/api/livez", handlePing)
-	r.GET("/api/readz", handlePing)
+	r.GET("/api/readyz", handlePing)
 	
 	// Publicly accessible API endpoints
 	r.GET("/api/public/server-config", handleServerConfig)
