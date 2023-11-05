@@ -2,8 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import TitleBar from './ui/things/titlebar'
-import { titlepar_data } from './lib/placeholder-data'
-import { useState } from 'react'
+
 
 const inter = Inter({ subsets: ['latin'] })
 
