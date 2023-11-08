@@ -24,8 +24,6 @@ RUN go build .
 
 FROM scratch AS app
 ENV MODE=dev
-ENV GIN_MODE=debug
-# ENV GIN_MODE=release
 
 WORKDIR /app
 COPY --from=ui /app/out/ ui/out
