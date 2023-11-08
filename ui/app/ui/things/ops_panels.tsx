@@ -1,6 +1,6 @@
-import { Button, Card, CardActions, CardContent, CardHeader, Typography } from "@mui/material";
+import { Avatar, Button, Card, CardActions, CardContent, CardHeader, Typography } from "@mui/material";
 import Image from "next/image";
-import { ElementLinkTailscale } from "../elements/status";
+import Link from "next/link";
 
 export function GitopsEvergreen() {
   return <Card>
@@ -31,11 +31,10 @@ export function HomepageOps() {
 }
 
 export function Tailscale() {
+  const tailscale_avatar = <Link href={"https://login.tailscale.com/admin/machines"} target='_blank'><Avatar src={"/icons/tailscale-logo.png"} alt="Open Tailscale Admin Console" sx={{ width: "50px", height: "50px" }}></Avatar></Link>
   return (
     <Card>
-      <CardHeader title="Tailscale" subheader="infinite.void@outlook.com" subheaderTypographyProps={{ marginRight: "20px" }} action={
-        <ElementLinkTailscale enabled={true} />
-      } />
+      <CardHeader title="Tailscale" subheader="infinite.void@outlook.com" subheaderTypographyProps={{ marginRight: "20px" }} action={tailscale_avatar} />
       <CardActions>
         <Button variant="outlined" href={""} target="_blank">PiKVM Mini</Button>
         <Button variant="outlined" disabled={true} href={""} target="_blank">PiKVM AIO</Button>

@@ -3,6 +3,7 @@ package backend
 import (
 	"net/http"
 	"github.com/gin-gonic/gin"
+	"github.com/thomasbuchinger/homelab-api/pkg/health"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
 )
 
@@ -26,14 +27,24 @@ func handleClientConfig(c *gin.Context) {
 
 func handlePublicHealth(c *gin.Context) {
 	target := c.Query("target")
-	static_data := map[string][]string{
-		"Servers": []string{"No Issues!"},
-		"Network": []string{"No Issues!"},
-		"API": []string{"No Issues!"},
+	targets := map[string]func() health.ExternalHealthCheckResult{
+		"Servers": health.Ok,
+		"Network": health.Ok,
+		"API": health.Ok,
+		"External API": health.CheckApiPublic,
+	}
+	res := targets[target]()
+	messages := []string{}
+	for _, r := range res.Results {
+		if r.Message != "" {
+			messages = append(messages, r.Message)
+		}
 	}
 
 	c.JSON(200, gin.H{
-		"healthy": true,
-		"messages": static_data[target],
+		"healthy": res.Health,
+		"passed": res.PassedChecks,
+		"total": res.TotalChecks,
+		"messages": messages,
 	})
 }

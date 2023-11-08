@@ -5,6 +5,7 @@ import { Button, Card, CardActionArea, CardContent, CardHeader, Divider, Link } 
 import { Externalapps, InfrastructureApps, ProductionApps, UtilityApps } from '../ui/things/applicationLinks'
 import { Evergreen, NAS, ProdK8s } from '../ui/things/status'
 import PlaceholderComponent from '../ui/elements/placeholder'
+import { GitopsEvergreen, HomepageOps, Tailscale } from '../ui/things/ops_panels'
 
 export default function Dashboard() {
   return (
@@ -21,6 +22,17 @@ export default function Dashboard() {
         </Grid2>
         <Grid2>
           <InfrastructureApps />
+        </Grid2>
+      </Grid2>
+      <Grid2 container spacing={2} alignItems ={"center"}>
+        <Grid2>
+          <GitopsEvergreen />
+        </Grid2>
+        <Grid2>
+          <Tailscale />
+        </Grid2>
+        <Grid2>
+          <HomepageOps />
         </Grid2>
       </Grid2>
 

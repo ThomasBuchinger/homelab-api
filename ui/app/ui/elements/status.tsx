@@ -25,7 +25,7 @@ export function ElementHeader(props: any) {
         title={name}
         subheader={ipAddress}
         titleTypographyProps={{ variant: "h6" }}
-        subheaderTypographyProps={{ variant: "h6" }}
+        subheaderTypographyProps={{ variant: "h6", paddingRight: "30px"}}
         avatar={<Circle htmlColor={all_checks_passed ? "green" : "red"} />}
         action={<>
           <ElementLinkOkdConsole url={okd} enabled={okd !== ""} />
@@ -105,12 +105,6 @@ export function ElementLinkGithub({ repo, enabled }: { repo: string, enabled: bo
 export function ElementLinkIpmi({ ipmi_ip, enabled }: { ipmi_ip: string, enabled: boolean }) {
   return (
     enabled ? <Link href={"http://" + ipmi_ip} target='_blank'><Image src={"/icons/ipmi.svg"} alt="Open IPMI Interface" width={60} height={60} ></Image></Link>
-      : <></>
-  )
-}
-export function ElementLinkTailscale({ enabled }: { enabled: boolean }) {
-  return (
-    enabled ? <Link href={"https://login.tailscale.com/admin/machines"} target='_blank'><Avatar src={"/icons/tailscale-logo.png"} alt="Open Tailscale Admin Console" sx={{ width: "50px", height: "50px" }}></Avatar></Link>
       : <></>
   )
 }

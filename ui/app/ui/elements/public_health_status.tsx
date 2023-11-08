@@ -13,6 +13,7 @@ export function HealthStatusPublic({target}: {target: string}) {
 
   return <Card >
     <CardHeader title={target} titleTypographyProps={{ variant: "h6" }}  avatar={status} />
+    <CardContent>Checks: {data.passed}/{data.total} Passed</CardContent>
     {isLoading ?
       <CardContent><Skeleton variant="rectangular" animation={"wave"} /></CardContent> :
       data.messages.map((m: any) => <CardContent key={m}>{m}</CardContent>)
