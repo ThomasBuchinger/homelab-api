@@ -1,6 +1,7 @@
 package health
 
 import (
+	"time"
 	resty "github.com/go-resty/resty/v2"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
 )
@@ -65,15 +66,16 @@ func CheckApiPublic() ExternalHealthCheckResult {
 	if successNet == false {
 		health.AddResult(singleResult{Passed: true, Message: ""})
 	} else {
-		health.AddResult(singleResult{Passed: false, Message: "NetworkPlicy: Internal Network Accessnot disabled"})
+		health.AddResult(singleResult{Passed: false, Message: "NetworkPolicy: Internal Network not disabled"})
 	}
 	
 	return health
 }
 
 func CheckCloudflareTrace() (bool, int, string){
+	dur, _ := time.ParseDuration("200ms")
 	url := "https://1.1.1.1/cdn-cgi/trace"
-	resp, err := resty.New().R().Get(url)
+	resp, err := resty.New().SetRetryCount(0).SetTimeout(dur).R().Get(url)
 	if err != nil {
 		return false, 0, err.Error()
 	}
@@ -82,8 +84,9 @@ func CheckCloudflareTrace() (bool, int, string){
 
 
 func CheckGateway() (bool, int, string){
+	dur, _ := time.ParseDuration("100ms")
 	url := "http://10.0.0.1/"
-	resp, err := resty.New().R().Get(url)
+	resp, err := resty.New().SetRetryCount(0).SetTimeout(dur).R().Get(url)
 	if err != nil {
 		return false, 0, err.Error()
 	}
