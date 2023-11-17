@@ -17,6 +17,7 @@ ENV CGO_ENABLED=0
 WORKDIR /go/github.com/thomasbuchinger/homelab-api
 ADD ./go.mod ./go.sum ./
 
+ADD /geoip ./geoip
 ADD ./pkg pkg/
 ADD ./README.md ./main.go ./
 RUN go get
