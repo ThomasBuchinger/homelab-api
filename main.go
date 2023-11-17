@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/thomasbuchinger/homelab-api/pkg/backend"
@@ -14,6 +15,9 @@ func embeddReactUI(router *gin.Engine) *gin.Engine {
 }
 
 func main() {
+	common.FeatureGeoipInit()
+	defer common.FeatureGeoipClose()
+
 	fmt.Println("Stating Homelab API...")
 	router := gin.Default()
 	gin.SetMode(common.GetServerConfig().GinMode)

@@ -2,9 +2,10 @@ package backend
 
 import (
 	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"github.com/thomasbuchinger/homelab-api/pkg/health"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
+	"github.com/thomasbuchinger/homelab-api/pkg/health"
 )
 
 func handleServerConfig(c *gin.Context) {
@@ -17,20 +18,25 @@ func handleClientConfig(c *gin.Context) {
 	if ip == "" {
 		ip = real_ip
 	}
+	country := "--"
+	if common.GetServerConfig().EnableGeoip {
+		country, _ = common.LookupIP(real_ip)
+	}
 
 	c.JSON(200, gin.H{
-		"ip": ip,
-		"real_ip": real_ip,
+		"ip":       ip,
+		"real_ip":  real_ip,
 		"internal": common.IsIpAddressInternal(ip),
+		"country":  country,
 	})
 }
 
 func handlePublicHealth(c *gin.Context) {
 	target := c.Query("target")
 	targets := map[string]func() health.ExternalHealthCheckResult{
-		"Servers": health.Ok,
-		"Network": health.Ok,
-		"API": health.Ok,
+		"Servers":      health.Ok,
+		"Network":      health.Ok,
+		"API":          health.Ok,
 		"External API": health.CheckApiPublic,
 	}
 	res := targets[target]()
@@ -42,9 +48,9 @@ func handlePublicHealth(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"healthy": res.Health,
-		"passed": res.PassedChecks,
-		"total": res.TotalChecks,
+		"healthy":  res.Health,
+		"passed":   res.PassedChecks,
+		"total":    res.TotalChecks,
 		"messages": messages,
 	})
 }

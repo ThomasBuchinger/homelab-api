@@ -3,24 +3,29 @@ package common
 import (
 	"os"
 	"strings"
+
 	"github.com/gin-gonic/gin"
 )
+
 const (
-	ServerModeDev = "dev"
+	ServerModeDev      = "dev"
 	ServerModeInternal = "internal"
-	ServerModePublic = "public"
+	ServerModePublic   = "public"
 )
+
 type Serverconfig struct {
-	GinMode string
+	GinMode            string
 	EnableInternalApis bool
-	EnableLegacyApi bool
+	EnableLegacyApi    bool
+	EnableGeoip        bool
 }
 
 func GetServerConfig() Serverconfig {
 	return Serverconfig{
-		GinMode: EnableFeatureInMode([]string{"dev"}, gin.DebugMode, gin.ReleaseMode),
+		GinMode:            EnableFeatureInMode([]string{"dev"}, gin.DebugMode, gin.ReleaseMode),
 		EnableInternalApis: EnableFeatureInMode([]string{"dev", "internal"}, true, false),
-		EnableLegacyApi: EnableFeatureInMode([]string{"dev", "internal"}, true, false),
+		EnableLegacyApi:    EnableFeatureInMode([]string{"dev", "internal"}, true, false),
+		EnableGeoip:        FeatureGeoipEnabled(),
 	}
 }
 
@@ -28,16 +33,16 @@ func IsIpAddressInternal(ip string) bool {
 	if ip == "127.0.0.1" || ip == "::ffff:127.0.0.1" {
 		return true
 	}
-	if strings.HasPrefix(ip, "10.0.0") && ip != "10.0.0.21"{
+	if strings.HasPrefix(ip, "10.0.0") && ip != "10.0.0.21" {
 		return true
 	}
 	return false
 }
 
-func GetEnvWithDefault(name, defaultValue string) string{
-	value := os.Getenv(name);
+func GetEnvWithDefault(name, defaultValue string) string {
+	value := os.Getenv(name)
 	if value != "" {
-    return value
+		return value
 	}
 	return defaultValue
 }

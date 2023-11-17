@@ -49,7 +49,7 @@ export default function TitleBar() {
 }
 
 function UserInfo(view_internal: boolean, setViewMode: CallableFunction) {
-  const [clientCfg, setClientCfg] = useState({ internal: false, ip: "" })
+  const [clientCfg, setClientCfg] = useState({ country:"", internal: false, ip: "" })
   useEffect(() => {
     fetch("/api/public/client-config")
       .then(response => response.json())
@@ -62,11 +62,11 @@ function UserInfo(view_internal: boolean, setViewMode: CallableFunction) {
       setViewMode(false)
     }
   }
-
+  const label = clientCfg.ip + " | " + clientCfg.country
 
   const chip = clientCfg.internal && view_internal ?
-    <Chip variant={'filled'} color={"info"}    icon={<Cottage />} label={clientCfg.ip} /> :
-    <Chip variant={'filled'} color={"warning"} icon={<Public />} label={clientCfg.ip} />
+    <Chip variant={'filled'} color={"info"}    icon={<Cottage />} label={label} /> :
+    <Chip variant={'filled'} color={"warning"} icon={<Public />} label={label} />
 
 
   return <Button onClick={toggleFunc} disabled={!clientCfg.internal}

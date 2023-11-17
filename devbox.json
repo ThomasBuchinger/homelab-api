@@ -1,7 +1,16 @@
 {
   "packages": [
     "nodejs@latest",
-    "go@latest"
+    "go@latest",
+    "gotools",
+    "gopls",
+    "go-outline",
+    "gocode",
+    "gopkgs",
+    "gocode-gomod",
+    "godef",
+    "golint"
+
   ],
   "shell": {
     "init_hook": [

@@ -21,11 +21,15 @@ ADD ./pkg pkg/
 ADD ./README.md ./main.go ./
 RUN go get
 RUN go build .
+RUN go test ./...
 
 FROM scratch AS app
 ENV MODE=dev
 
 WORKDIR /app
+ENV GEOIP_DATABASE=/geoip/Geolite2-City.mmdb
+
+COPY /geoip /geoip
 COPY --from=ui /app/out/ ui/out
 COPY --from=api /go/github.com/thomasbuchinger/homelab-api/homelab-api /app
 
