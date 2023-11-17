@@ -13,14 +13,14 @@ export function ProductionApps() {
       <ApplicationButton href="https://paperless.buc.sh" icon="paperless-square.svg" text="Paperless" />
       <ApplicationButton href="http://10.0.0.20:30024/" icon="qbittorrent-new-light.svg" text="qBittorrent" />
       <ApplicationButton href="https://syncthing.buc.sh" icon="syncthing-logo-128.png" text="Syncthing" />
-      <ApplicationButton href="http://files.bus.sh" icon="kubernetes-pv-labeled.svg" text="iSCSI Files" />
+      <ApplicationButton href="http://files.buc.sh" icon="kubernetes-pv-labeled.svg" text="iSCSI Files" />
     </AppLauncherComponent>
   )
 }
 export function UtilityApps() {
   return (
     <AppLauncherComponent name="Utility">
-      <ApplicationButton href="http://pdf.bus.sh" icon="stirling-transparent.svg" text="PDF Tools" />
+      <ApplicationButton href="http://pdf.buc.sh" icon="stirling-transparent.svg" text="PDF Tools" />
       <ApplicationButton href="http://paste.buc.sh" icon="wastebin-logo.png" text="Wastebin" />
     </AppLauncherComponent>
   )

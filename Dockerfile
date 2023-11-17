@@ -28,7 +28,7 @@ FROM scratch AS app
 ENV MODE=dev
 
 WORKDIR /app
-ENV GEOIP_DATABASE=/geoip/Geolite2-City.mmdb
+ENV GEOIP_DATABASE=/geoip/GeoLite2-City.mmdb
 
 COPY /geoip /geoip
 COPY --from=ui /app/out/ ui/out
