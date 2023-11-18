@@ -25,5 +25,5 @@ func main() {
 	router = embeddReactUI(router)
 	router = backend.SetupApi(router)
 
-	router.Run(":8080")
+	router.Run(common.GetEnvWithDefault("BIND_ADDR", ":8080"))
 }

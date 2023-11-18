@@ -67,7 +67,7 @@ const (
 func handleAuthSimple(c *gin.Context) {
 	real_ip := c.GetHeader(HeaderRealClientIP)
 
-	if AuthByGeoip(real_ip) || AllowInternalIp(real_ip) {
+	if AuthByGeoip(real_ip, authConfig) || AllowInternalIp(real_ip) {
 		c.JSON(http.StatusOK, struct{}{})
 	} else {
 		c.JSON(http.StatusForbidden, struct{}{})
@@ -78,7 +78,7 @@ func handleAuthWithCred(c *gin.Context) {
 	real_ip := c.GetHeader(HeaderRealClientIP)
 	user, pass, hasCredentials := c.Request.BasicAuth()
 
-	if AuthByGeoip(real_ip) && hasCredentials && AuthByCredentials(user, pass) && AuthByTempAllow("", "") {
+	if AuthByGeoip(real_ip, authConfig) && hasCredentials && AuthByCredentials(user, pass) && AuthByTempAllow("", "") {
 		c.JSON(http.StatusOK, struct{}{})
 	} else {
 		c.JSON(http.StatusForbidden, struct{}{})

@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"strings"
 	"time"
 
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
@@ -8,21 +9,43 @@ import (
 
 type AuthorizationConfig struct {
 	AllowedCountries []string
-	TempAllow        map[string]TempAllow
+	Users            map[string]AuthUser
+	Rules            map[string]AuthAllowRule
 }
-type TempAllow struct {
+type AuthAllowRule struct {
 	Port        int
 	ExpireDate  time.Time
 	RequireAuth bool
 	PathRegex   []string
 }
-
-var authConfig AuthorizationConfig = AuthorizationConfig{
-	AllowedCountries: []string{"AT", "HR", "IT", "CZ"},
-	TempAllow:        map[string]TempAllow{},
+type AuthUser struct {
+	Password string
 }
 
-func AuthByGeoip(ip string) bool {
+var authConfig AuthorizationConfig = CreateAuthConfig(
+	common.GetEnvWithDefault("AUTH_COUNTRIES", ""),
+	common.GetEnvWithDefault("AUTH_USER", ""),
+	common.GetEnvWithDefault("AUTH_PASS", ""),
+)
+
+func CreateAuthConfig(allowed_countries, auth_user, auth_pass string) AuthorizationConfig {
+	countries := []string{}
+	for _, c := range strings.Split(allowed_countries, ",") {
+		countries = append(countries, strings.ToUpper(strings.Trim(c, " ")))
+	}
+	users := map[string]AuthUser{}
+	if auth_user != "" && auth_pass != "" {
+		users = map[string]AuthUser{auth_user: {Password: auth_pass}}
+	}
+
+	return AuthorizationConfig{
+		AllowedCountries: countries,
+		Users:            users,
+		Rules:            map[string]AuthAllowRule{},
+	}
+}
+
+func AuthByGeoip(ip string, conf AuthorizationConfig) bool {
 	cfg := common.GetServerConfig()
 
 	if !cfg.EnableGeoip {
@@ -33,7 +56,7 @@ func AuthByGeoip(ip string) bool {
 		return false
 	}
 
-	for _, allowed_country := range authConfig.AllowedCountries {
+	for _, allowed_country := range conf.AllowedCountries {
 		if req_country == allowed_country {
 			return true
 		}
@@ -57,7 +80,7 @@ func AuthByTempAllow(host string, path string) bool {
 }
 
 func (conf *AuthorizationConfig) AddTempAllow(host string, paths []string, expires time.Duration, auth bool) {
-	conf.TempAllow[host] = TempAllow{
+	conf.Rules[host] = AuthAllowRule{
 		Port:        0,
 		ExpireDate:  time.Now().Add(expires),
 		RequireAuth: auth,
