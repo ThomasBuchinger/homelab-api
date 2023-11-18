@@ -9,17 +9,28 @@ import (
 )
 
 type GeoipFeature struct {
-	Enabled     bool
-	Failed      bool
-	FailedError error
-	Database    *geoip.Reader
+	Enabled      bool
+	Failed       bool
+	FailedError  error
+	DatapasePath string
+	Database     *geoip.Reader
 }
 
 var featureGeoip GeoipFeature = GeoipFeature{
-	Enabled:     false,
-	Failed:      false,
-	FailedError: nil,
-	Database:    nil,
+	Enabled:      false,
+	Failed:       false,
+	FailedError:  nil,
+	DatapasePath: getGeoipDatabasePath(),
+	Database:     nil,
+}
+
+func getGeoipDatabasePath() string {
+	default_database_path := "geoip/GeoLite2-City.mmdb"
+	databse_path := GetEnvWithDefault("GEOIP_DATABASE", default_database_path)
+	if !path.IsAbs(databse_path) {
+		databse_path = path.Clean("../../" + databse_path)
+	}
+	return databse_path
 }
 
 func FeatureGeoipInit() bool {
@@ -27,17 +38,11 @@ func FeatureGeoipInit() bool {
 		return featureGeoip.Enabled
 	}
 
-	default_database_path := "geoip/GeoLite2-City.mmdb"
-	databse_path := GetEnvWithDefault("GEOIP_DATABASE", default_database_path)
-	if !path.IsAbs(databse_path) {
-		databse_path = path.Clean("../../" + databse_path)
-	}
-	db, err := geoip.Open(databse_path)
+	db, err := geoip.Open(getGeoipDatabasePath())
 	if err != nil {
 		log.Println(err)
 		featureGeoip.Failed = true
 		featureGeoip.FailedError = err
-		// return false
 	} else {
 		featureGeoip.Enabled = true
 		featureGeoip.Database = db
@@ -50,10 +55,8 @@ func FeatureGeoipClose() {
 	featureGeoip.Enabled = false
 	featureGeoip.Failed = false
 	featureGeoip.FailedError = nil
+	featureGeoip.DatapasePath = ""
 	featureGeoip.Database = nil
-}
-func FeatureGeoipEnabled() bool {
-	return featureGeoip.Enabled
 }
 
 func LookupIP(ip string) (string, error) {

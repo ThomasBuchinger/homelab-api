@@ -2,6 +2,7 @@ package backend
 
 import (
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
 )
@@ -14,7 +15,7 @@ func SetupApi(r *gin.Engine) *gin.Engine {
 
 	r.GET("/api/livez", handlePing)
 	r.GET("/api/readyz", handlePing)
-	
+
 	// Publicly accessible API endpoints
 	r.GET("/api/public/server-config", handleServerConfig)
 	r.GET("/api/public/client-config", handleClientConfig)
@@ -30,6 +31,8 @@ func SetupApi(r *gin.Engine) *gin.Engine {
 	}
 	if serverConfig.EnableInternalApis {
 		r.GET("/api/internal/ping", handlePing)
+		r.GET("/api/auth/simple", handleAuthSimple)
+		r.GET("/api/auth/login", handleAuthWithCred)
 	}
 	return r
 }

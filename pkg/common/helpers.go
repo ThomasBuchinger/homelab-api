@@ -18,6 +18,8 @@ type Serverconfig struct {
 	EnableInternalApis bool
 	EnableLegacyApi    bool
 	EnableGeoip        bool
+
+	GeoipDatabasePath string
 }
 
 func GetServerConfig() Serverconfig {
@@ -25,7 +27,9 @@ func GetServerConfig() Serverconfig {
 		GinMode:            EnableFeatureInMode([]string{"dev"}, gin.DebugMode, gin.ReleaseMode),
 		EnableInternalApis: EnableFeatureInMode([]string{"dev", "internal"}, true, false),
 		EnableLegacyApi:    EnableFeatureInMode([]string{"dev", "internal"}, true, false),
-		EnableGeoip:        FeatureGeoipEnabled(),
+		EnableGeoip:        featureGeoip.Enabled,
+
+		GeoipDatabasePath: featureGeoip.DatapasePath,
 	}
 }
 
