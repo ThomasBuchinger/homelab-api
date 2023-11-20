@@ -31,8 +31,8 @@ func SetupApi(r *gin.Engine) *gin.Engine {
 	}
 	if serverConfig.EnableInternalApis {
 		r.GET("/api/internal/ping", handlePing)
-		r.GET("/api/auth/simple", handleAuthSimple)
-		r.GET("/api/auth/login", handleAuthWithCred)
+		r.GET("/api/auth/simple/*authpath", handleAuthSimple)
+		r.GET("/api/auth/login/*authpath", handleAuthWithCred)
 	}
 	return r
 }
