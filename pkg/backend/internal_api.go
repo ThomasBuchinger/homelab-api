@@ -68,8 +68,10 @@ func handleAuthSimple(c *gin.Context) {
 	real_ip := c.GetHeader(HeaderRealClientIP)
 
 	if AuthByGeoip(real_ip, authConfig) || AllowInternalIp(real_ip) {
+		log.Println("Success: Auth Simple")
 		c.JSON(http.StatusOK, struct{}{})
 	} else {
+		log.Println("Failed: Auth Simple")
 		c.JSON(http.StatusForbidden, struct{}{})
 	}
 }
@@ -79,8 +81,10 @@ func handleAuthWithCred(c *gin.Context) {
 	user, pass, hasCredentials := c.Request.BasicAuth()
 
 	if AuthByGeoip(real_ip, authConfig) && hasCredentials && AuthByCredentials(user, pass) && AuthByTempAllow("", "") {
+		log.Println("Success: Auth Login")
 		c.JSON(http.StatusOK, struct{}{})
 	} else {
+		log.Println("Failed: Auth Login")
 		c.JSON(http.StatusForbidden, struct{}{})
 	}
 }

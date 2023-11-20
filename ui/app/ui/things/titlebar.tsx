@@ -32,6 +32,7 @@ export default function TitleBar() {
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }}} alignItems={"center"}>
+            <Button href='/admin' sx={{ my: 2, color: 'white', display: 'block' }} >Admin</Button>
             {viewInternal ? <Button href='/dashboard' sx={{ my: 2, color: 'white', display: 'block' }} >Dashboard</Button> : <></>}
             {viewInternal ? <Button href='/status' sx={{ my: 2, color: 'white', display: 'block' }} >Status</Button> : <></>}
             {viewInternal ? <Button href='/apps' sx={{ my: 2, color: 'white', display: 'block' }} >Application</Button> : <></>}
