@@ -66,6 +66,7 @@ const (
 
 func handleAuthSimple(c *gin.Context) {
 	real_ip := c.GetHeader(HeaderRealClientIP)
+	log.Printf("Headers=%v | Remote=%s \n", c.Request.Header, c.RemoteIP())
 
 	if AuthByGeoip(real_ip, authConfig) || AllowInternalIp(real_ip) {
 		log.Println("Success: Auth Simple")
