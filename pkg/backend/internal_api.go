@@ -61,12 +61,12 @@ func handleLegacyMetrics(c *gin.Context) {
 }
 
 const (
-	HeaderRealClientIP = "x-forwarded-for"
+	HeaderRealClientIP = "x_forwarded_for"
 )
 
 func handleAuthSimple(c *gin.Context) {
 	real_ip := c.GetHeader(HeaderRealClientIP)
-	log.Printf("Headers=%v | Remote=%s \n", c.Request.Header, c.RemoteIP())
+	log.Printf("Headers: %v | Remote: %s | Host: %v | Path: %v\n", c.Request.Header, c.RemoteIP(), c.Request.Host, c.Request.URL.Path)
 
 	if AuthByGeoip(real_ip, authConfig) || AllowInternalIp(real_ip) {
 		log.Println("Success: Auth Simple")
