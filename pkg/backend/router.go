@@ -2,16 +2,38 @@ package backend
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/requestid"
+	ginzap "github.com/gin-contrib/zap"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
 )
 
-func handlePing(c *gin.Context) {
-	c.String(http.StatusOK, "pong")
+func SetupRouter() *gin.Engine {
+	serverConfig := common.GetServerConfig()
+	logger := serverConfig.RootLogger.Desugar().Named("access")
+
+	gin.SetMode(serverConfig.GinMode)
+	router := gin.New()
+	router.Use(ginzap.GinzapWithConfig(logger, &ginzap.Config{TimeFormat: time.RFC3339, UTC: true,
+		SkipPaths: []string{
+			"/api/livez",
+			"/api/readyz",
+		},
+	}))
+	router.Use(ginzap.RecoveryWithZap(logger, false))
+	router.Use(requestid.New())
+
+	router.Use(static.Serve("/", static.LocalFile("./ui/out", true)))
+	router.Use(static.Serve("/geoip", static.LocalFile("/geoip", true)))
+
+	router = setupApiEndpoints(router)
+	return router
 }
 
-func SetupApi(r *gin.Engine) *gin.Engine {
+func setupApiEndpoints(r *gin.Engine) *gin.Engine {
 
 	r.GET("/api/livez", handlePing)
 	r.GET("/api/readyz", handlePing)
@@ -35,6 +57,10 @@ func SetupApi(r *gin.Engine) *gin.Engine {
 		r.GET("/api/auth/login/*authpath", handleAuthWithCred)
 	}
 	return r
+}
+
+func handlePing(c *gin.Context) {
+	c.String(http.StatusOK, "pong")
 }
 
 // Authorized group (uses gin.BasicAuth() middleware)

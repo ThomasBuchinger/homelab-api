@@ -26,7 +26,7 @@ var featureGeoip GeoipFeature = GeoipFeature{
 
 func getGeoipDatabasePath() string {
 	default_database_path := "geoip/GeoLite2-City.mmdb"
-	databse_path := GetEnvWithDefault("GEOIP_DATABASE", default_database_path)
+	databse_path := GetEnvWithDefault(EnvGeoipDatabase, default_database_path)
 	if !path.IsAbs(databse_path) {
 		databse_path = path.Clean("../../" + databse_path)
 	}
