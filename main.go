@@ -11,6 +11,7 @@ import (
 
 func embeddReactUI(router *gin.Engine) *gin.Engine {
 	router.Use(static.Serve("/", static.LocalFile("./ui/out", true)))
+	router.Use(static.Serve("/geoip", static.LocalFile("/geoip", true)))
 	return router
 }
 
