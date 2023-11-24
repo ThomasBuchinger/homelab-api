@@ -59,15 +59,36 @@ func FeatureGeoipClose() {
 	featureGeoip.Database = nil
 }
 
-func LookupIP(ip string) (string, error) {
+type GeoipLookup struct {
+	ip        string
+	Country   string
+	CityName  string
+	Latitude  float64
+	Longitude float64
+}
+
+func LookupIP(ip string) (GeoipLookup, error) {
 	// If you are using strings that may be invalid, check that ip is not nil
 	ip_addr := net.ParseIP(ip)
 	record, err := featureGeoip.Database.City(ip_addr)
 	if err != nil {
 		log.Printf("Error parsing IP: %v\n", err)
-		return "--", err
+		return GeoipLookup{ip: ip, Country: "--", CityName: "--", Latitude: 0, Longitude: 0}, err
 	}
-	log.Printf("Geoip: lookup '%s' | %v - %v - %v/%v\n", ip, record.Country.IsoCode, record.City.Names["en"], record.Location.Latitude, record.Location.Longitude)
+	ret := GeoipLookup{
+		ip:        ip,
+		Country:   record.Country.IsoCode,
+		CityName:  record.City.Names["en"],
+		Latitude:  record.Location.Latitude,
+		Longitude: record.Location.Longitude,
+	}
 
-	return record.Country.IsoCode, nil
+	GetServerConfig().RootLogger.Debugf("Geoip: lookup '%s' | %v - %v - %v/%v\n", ip, ret.Country, ret.CityName, ret.Latitude, ret.Longitude)
+
+	return ret, nil
+
+}
+func LookupCountryCode(ip string) (string, error) {
+	ret, err := LookupIP(ip)
+	return ret.Country, err
 }

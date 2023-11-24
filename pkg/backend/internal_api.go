@@ -28,7 +28,7 @@ func handleLegacyProxy(c *gin.Context) {
 	}
 
 	resp, err := req.Get(url)
-	log.Println("GET ", url, " | ", resp.StatusCode())
+	ApiLogger.Debugf("Called API: GET %s | %v", url, resp.StatusCode)
 
 	if resp.StatusCode() == 0 {
 		log.Println("Network Error (", url, "):", err.Error())
@@ -51,7 +51,7 @@ func handleLegacyMetrics(c *gin.Context) {
 		R()
 
 	resp, err := req.Get(url)
-	log.Println("GET ", url, " | ", resp.StatusCode())
+	ApiLogger.Debugf("Called API: GET %s | %v", url, resp.StatusCode)
 
 	if resp.StatusCode() == 0 {
 		log.Println("Network Error (", url, "):", err.Error())
@@ -60,32 +60,26 @@ func handleLegacyMetrics(c *gin.Context) {
 	c.String(resp.StatusCode(), resp.String())
 }
 
-const (
-	HeaderRealClientIP = "X-Envoy-Forwarded-For"
-)
+// func handleAuthSimple(c *gin.Context) {
+// 	ip := c.GetHeader(HeaderRealClientIP)
+// 	ApiLogger.Debugf("Authentication Request: Remote: %s | Host: %v | Path: %v | Headers: %v", c.RemoteIP(), c.Request.Host, c.Request.URL.Path, c.Request.Header)
 
-func handleAuthSimple(c *gin.Context) {
-	real_ip := c.GetHeader(HeaderRealClientIP)
-	log.Printf("Remote: %s | Host: %v | Path: %v | Headers: %v\n", c.RemoteIP(), c.Request.Host, c.Request.URL.Path, c.Request.Header)
+// 	if AuthByGeoip(ip, authConfig) || AllowInternalIp(ip) {
+// 		ApiLogger.Info("Authorized: %s to %s/%v\n", ip, c.Request.Host, c.Request.URL.Path)
+// 		c.JSON(http.StatusOK, struct{}{})
+// 	} else {
+// 		ApiLogger.Info("Denied: %s to %s/%v\n", ip, c.Request.Host, c.Request.URL.Path)
+// 		c.JSON(http.StatusForbidden, struct{}{})
+// 	}
+// }
 
-	if AuthByGeoip(real_ip, authConfig) || AllowInternalIp(real_ip) {
-		log.Println("Success: Auth Simple")
-		c.JSON(http.StatusOK, struct{}{})
-	} else {
-		log.Println("Failed: Auth Simple")
-		c.JSON(http.StatusForbidden, struct{}{})
-	}
-}
+// func handleAuth(c *gin.Context) {
+// 	real_ip := c.GetHeader(HeaderRealClientIP)
+// 	user, pass, hasCredentials := c.Request.BasicAuth()
 
-func handleAuthWithCred(c *gin.Context) {
-	real_ip := c.GetHeader(HeaderRealClientIP)
-	user, pass, hasCredentials := c.Request.BasicAuth()
-
-	if AuthByGeoip(real_ip, authConfig) && hasCredentials && AuthByCredentials(user, pass) && AuthByTempAllow("", "") {
-		log.Println("Success: Auth Login")
-		c.JSON(http.StatusOK, struct{}{})
-	} else {
-		log.Println("Failed: Auth Login")
-		c.JSON(http.StatusForbidden, struct{}{})
-	}
-}
+// 	if AuthByGeoip(real_ip, authConfig) && hasCredentials && AuthByCredentials(user, pass) && AuthByTempAllow("", "") {
+// 		c.JSON(http.StatusOK, struct{}{})
+// 	} else {
+// 		c.JSON(http.StatusForbidden, struct{}{})
+// 	}
+// }

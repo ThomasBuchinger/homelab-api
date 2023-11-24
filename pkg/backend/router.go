@@ -8,8 +8,12 @@ import (
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
+	"go.uber.org/zap"
 )
+
+var ApiLogger *zap.SugaredLogger = common.GetServerConfig().RootLogger.Named("API")
 
 func SetupRouter() *gin.Engine {
 	serverConfig := common.GetServerConfig()
@@ -37,11 +41,11 @@ func setupApiEndpoints(r *gin.Engine) *gin.Engine {
 
 	r.GET("/api/livez", handlePing)
 	r.GET("/api/readyz", handlePing)
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// Publicly accessible API endpoints
-	r.GET("/api/public/server-config", handleServerConfig)
-	r.GET("/api/public/client-config", handleClientConfig)
 	r.GET("/api/public/ping", handlePing)
+	r.GET("/api/public/client-config", handleClientConfig)
 	r.GET("/api/public/health", handlePublicHealth)
 
 	// API endpoints only available in "internal" mode
@@ -53,8 +57,8 @@ func setupApiEndpoints(r *gin.Engine) *gin.Engine {
 	}
 	if serverConfig.EnableInternalApis {
 		r.GET("/api/internal/ping", handlePing)
-		r.GET("/api/auth/simple/*authpath", handleAuthSimple)
-		r.GET("/api/auth/login/*authpath", handleAuthWithCred)
+		r.GET("/api/auth/*authpath", handleAuth)
+		// r.GET("/api/auth/login/*authpath", handleAuth)
 	}
 	return r
 }

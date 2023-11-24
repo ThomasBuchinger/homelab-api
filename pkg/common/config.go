@@ -16,20 +16,24 @@ const (
 	EnvMode                = "MODE"
 	EnvGeoipDatabase       = "GEOIP_DATABASE"
 	EnvCopyGeipDestination = "COPY_GEOIP_DATABASE"
+	EnvAuthCountries       = "AUTH_COUNTRIES"
+	EnvAuthUser            = "AUTH_COUNTRIES"
+	EnvAuthPass            = "AUTH_COUNTRIES"
 )
 
 type Serverconfig struct {
-	GinMode string
+	GinMode       string
+	JsonLogs      bool
+	RootLogger    *zap.SugaredLogger
+	AuthCountries string
 
 	EnableInternalApis bool
 	EnableLegacyApi    bool
-	EnableGeoip        bool
-	JsonLogs           bool
 
-	CopyGeoipAndExit bool
+	TaskCopyGeoip bool
 
+	EnableGeoip       bool
 	GeoipDatabasePath string
-	RootLogger        *zap.SugaredLogger
 }
 
 func GetServerConfig() Serverconfig {
@@ -41,15 +45,18 @@ func GetServerConfig() Serverconfig {
 	}
 
 	return Serverconfig{
-		GinMode:            EnableFeatureInMode([]string{ServerModeDev}, gin.DebugMode, gin.ReleaseMode),
+		GinMode:       EnableFeatureInMode([]string{ServerModeDev}, gin.DebugMode, gin.ReleaseMode),
+		JsonLogs:      EnableFeatureInMode([]string{ServerModeInternal, ServerModePublic}, true, false),
+		RootLogger:    logger.Sugar(),
+		AuthCountries: GetEnvWithDefault(EnvAuthCountries, ""),
+
 		EnableInternalApis: EnableFeatureInMode([]string{ServerModeDev, ServerModeInternal}, true, false),
 		EnableLegacyApi:    EnableFeatureInMode([]string{ServerModeDev, ServerModeInternal}, true, false),
-		JsonLogs:           EnableFeatureInMode([]string{ServerModeInternal, ServerModePublic}, true, false),
-		EnableGeoip:        featureGeoip.Enabled,
-		CopyGeoipAndExit:   GetEnvWithDefault(EnvCopyGeipDestination, "") != "",
 
+		TaskCopyGeoip: GetEnvWithDefault(EnvCopyGeipDestination, "") != "",
+
+		EnableGeoip:       featureGeoip.Enabled,
 		GeoipDatabasePath: featureGeoip.DatapasePath,
-		RootLogger:        logger.Sugar(),
 	}
 }
 

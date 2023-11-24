@@ -28,14 +28,14 @@ func main() {
 	defer common.FeatureGeoipClose()
 
 	serverConfig := common.GetServerConfig()
-	if serverConfig.CopyGeoipAndExit {
+	if serverConfig.TaskCopyGeoip {
 		copyGeoipDatabase(common.GetServerConfig().GeoipDatabasePath, common.GetEnvWithDefault(common.EnvCopyGeipDestination, ""))
 		fmt.Println("Successfully Copied Database")
 		os.Exit(0)
 	}
 	router := backend.SetupRouter()
 
-	serverConfig.RootLogger.Info("Starting HomeLAB API Server...")
+	serverConfig.RootLogger.Info("Starting HomeLAB API Server on :8080...")
 	defer serverConfig.RootLogger.Sync()
 	router.Run(common.GetEnvWithDefault("BIND_ADDR", ":8080"))
 }

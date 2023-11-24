@@ -1,16 +1,10 @@
 package backend
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
 	"github.com/thomasbuchinger/homelab-api/pkg/health"
 )
-
-func handleServerConfig(c *gin.Context) {
-	c.JSONP(http.StatusOK, common.GetServerConfig())
-}
 
 func handleClientConfig(c *gin.Context) {
 	real_ip := c.ClientIP()
@@ -20,9 +14,10 @@ func handleClientConfig(c *gin.Context) {
 	}
 	country := "--"
 	if common.GetServerConfig().EnableGeoip {
-		country, _ = common.LookupIP(real_ip)
+		country, _ = common.LookupCountryCode(real_ip)
 	}
 
+	ApiLogger.Debugw("Client-Config", "ip", ip, "country", country, "internal", common.IsIpAddressInternal(ip))
 	c.JSON(200, gin.H{
 		"ip":       ip,
 		"real_ip":  real_ip,
@@ -46,7 +41,7 @@ func handlePublicHealth(c *gin.Context) {
 			messages = append(messages, r.Message)
 		}
 	}
-
+	ApiLogger.Debugf("health: %v | Messages: %v", res.Health, messages)
 	c.JSON(200, gin.H{
 		"healthy":  res.Health,
 		"passed":   res.PassedChecks,
