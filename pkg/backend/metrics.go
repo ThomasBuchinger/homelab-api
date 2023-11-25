@@ -11,7 +11,7 @@ import (
 var metricGeoipRequestsTotal *prometheus.CounterVec = promauto.NewCounterVec(prometheus.CounterOpts{
 	Name: "homelabapi_geoip_requests_total",
 	Help: "Total Requests seen by the ExtAuthz handler by country",
-}, []string{"Latitude", "Longitude", "Country", "City"})
+}, []string{"latitude", "longitude", "country", "city"})
 
 func LogGeoipRequest(loc common.GeoipLookup) {
 	metricGeoipRequestsTotal.WithLabelValues(fmt.Sprint(loc.Latitude), fmt.Sprint(loc.Longitude), loc.Country, loc.CityName).Inc()
