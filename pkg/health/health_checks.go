@@ -2,15 +2,17 @@ package health
 
 import (
 	"time"
+
 	resty "github.com/go-resty/resty/v2"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
 )
 
-type ExternalHealthCheckResult struct{
-	Health bool
+type ExternalHealthCheckResult struct {
+	Health                    bool
 	PassedChecks, TotalChecks int
-	Results []singleResult
+	Results                   []singleResult
 }
+
 func (healthcheck *ExternalHealthCheckResult) AddResult(result singleResult) {
 	healthcheck.Results = append(healthcheck.Results, result)
 
@@ -20,15 +22,16 @@ func (healthcheck *ExternalHealthCheckResult) AddResult(result singleResult) {
 	for _, r := range healthcheck.Results {
 		h = h && r.Passed
 		if r.Passed {
-			passed_count +=1
+			passed_count += 1
 		}
 	}
 	healthcheck.Health = h
 	healthcheck.PassedChecks = passed_count
 	healthcheck.TotalChecks = len(healthcheck.Results)
 }
-type singleResult struct{
-	Passed bool
+
+type singleResult struct {
+	Passed  bool
 	Message string
 }
 
@@ -68,11 +71,11 @@ func CheckApiPublic() ExternalHealthCheckResult {
 	} else {
 		health.AddResult(singleResult{Passed: false, Message: "NetworkPolicy: Internal Network not disabled"})
 	}
-	
+
 	return health
 }
 
-func CheckCloudflareTrace() (bool, int, string){
+func CheckCloudflareTrace() (bool, int, string) {
 	dur, _ := time.ParseDuration("200ms")
 	url := "https://1.1.1.1/cdn-cgi/trace"
 	resp, err := resty.New().SetRetryCount(0).SetTimeout(dur).R().Get(url)
@@ -82,8 +85,7 @@ func CheckCloudflareTrace() (bool, int, string){
 	return true, resp.StatusCode(), resp.String()
 }
 
-
-func CheckGateway() (bool, int, string){
+func CheckGateway() (bool, int, string) {
 	dur, _ := time.ParseDuration("100ms")
 	url := "http://10.0.0.1/"
 	resp, err := resty.New().SetRetryCount(0).SetTimeout(dur).R().Get(url)
@@ -92,5 +94,3 @@ func CheckGateway() (bool, int, string){
 	}
 	return true, resp.StatusCode(), resp.String()
 }
-
-
