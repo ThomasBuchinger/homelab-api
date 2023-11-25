@@ -28,7 +28,7 @@ func handleAuth(c *gin.Context) {
 	authPolicy := ResolveAuthPolicyForRequest(c.Request.Host, allKnownVirtualHosts())
 
 	loc, err := common.LookupIP(ip)
-	if err != nil {
+	if err == nil {
 		LogGeoipRequest(loc)
 	}
 
