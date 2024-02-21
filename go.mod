@@ -10,7 +10,7 @@ require (
 	github.com/go-resty/resty/v2 v2.11.0
 	github.com/oschwald/geoip2-golang v1.9.0
 	github.com/prometheus/client_golang v1.18.0
-	go.uber.org/zap v1.26.0
+	go.uber.org/zap v1.27.0
 )
 
 require (
