@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-contrib/zap v0.2.0
-	github.com/gin-gonic/contrib v0.0.0-20221130124618-7e01895a63f2
+	github.com/gin-gonic/contrib v0.0.0-20240508051311-c1c6bf0061b0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-resty/resty/v2 v2.12.0
 	github.com/oschwald/geoip2-golang v1.9.0
