@@ -35,6 +35,8 @@ github.com/gin-contrib/zap v0.2.0 h1:HLvt3rZXyC8XC+s2lHzMFow3UDqiEbfrBWJyHHS6L8A
 github.com/gin-contrib/zap v0.2.0/go.mod h1:eqfbe9ZmI+GgTZF6nRiC2ZwDeM4DK1Viwc8OxTCphh0=
 github.com/gin-gonic/contrib v0.0.0-20221130124618-7e01895a63f2 h1:dyuNlYlG1faymw39NdJddnzJICy6587tiGSVioWhYoE=
 github.com/gin-gonic/contrib v0.0.0-20221130124618-7e01895a63f2/go.mod h1:iqneQ2Df3omzIVTkIfn7c1acsVnMGiSLn4XF5Blh3Yg=
+github.com/gin-gonic/contrib v0.0.0-20240508051311-c1c6bf0061b0 h1:EUFmvQ8ffefnSAmaUZd9HZYZSw9w/bFjp3FiNaJ5WmE=
+github.com/gin-gonic/contrib v0.0.0-20240508051311-c1c6bf0061b0/go.mod h1:iqneQ2Df3omzIVTkIfn7c1acsVnMGiSLn4XF5Blh3Yg=
 github.com/gin-gonic/gin v1.8.1/go.mod h1:ji8BvRH1azfM+SYow9zQ6SZMvR8qOMZHmsCuWR9tTTk=
 github.com/gin-gonic/gin v1.9.1 h1:4idEAncQnU5cB7BeOkPtxjfCSye0AAm1R0RVIqJ+Jmg=
 github.com/gin-gonic/gin v1.9.1/go.mod h1:hPrL7YrpYKXt5YId3A/Tnip5kqbEAP+KLuI3SUcPTeU=
