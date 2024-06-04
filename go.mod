@@ -6,7 +6,7 @@ toolchain go1.22.3
 
 require (
 	github.com/gin-contrib/requestid v0.0.6
-	github.com/gin-contrib/zap v0.2.0
+	github.com/gin-contrib/zap v1.1.3
 	github.com/gin-gonic/contrib v0.0.0-20240508051311-c1c6bf0061b0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-resty/resty/v2 v2.13.1
