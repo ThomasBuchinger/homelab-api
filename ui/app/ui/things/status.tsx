@@ -30,7 +30,7 @@ export function Evergreen() {
       </Card>
     </Grid>
   )
-}
+}   
 
 export function NAS() {
   const ipAddress = "10.0.0.20"
@@ -40,7 +40,7 @@ export function NAS() {
     useHealthCheck("NodeExporter is running", { url: "http://" + ipAddress + ":9100/metrics", metric: "node_exporter_build_info" }, CheckMetric),
     useHealthCheck("Raidpool online", { url: "http://" + ipAddress + ":9100/metrics", metric: "node_zfs_zpool_state", labels: { state: "online", zpool: "raidpool" }, value: "1" }, CheckMetric),
     useHealthCheck("LCD-Scrren Container up", { url: "http://" + ipAddress + ":8080/metrics", metric: "kube_deployment_status_replicas", labels: { deployment: "lcd-screen-ix-chart" }, value: "1" }, CheckMetric),
-    useHealthCheck("Minio Container up", { url: "http://" + ipAddress + ":8080/metrics", metric: "kube_deployment_status_replicas", labels: { deployment: "minio" }, value: "1" }, CheckMetric),
+    useHealthCheck("Minio Container up", { url: "http://" + ipAddress + ":8080/metrics", metric: "kube_deployment_status_replicas", labels: { deployment: "minio-minio" }, value: "1" }, CheckMetric),
     useHealthCheck("Qbittorrent Container up", { url: "http://" + ipAddress + ":8080/metrics", metric: "kube_deployment_status_replicas", labels: { deployment: "qbittorrent" }, value: "1" }, CheckMetric),
     // setupHealthCheck("test", { state: "na"}, CheckDebuggerFunction),
   ]

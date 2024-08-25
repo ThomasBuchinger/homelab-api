@@ -1,8 +1,11 @@
 package backend
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
+	"github.com/thomasbuchinger/homelab-api/pkg/envoy"
 	"github.com/thomasbuchinger/homelab-api/pkg/health"
 )
 
@@ -47,5 +50,29 @@ func handlePublicHealth(c *gin.Context) {
 		"passed":   res.PassedChecks,
 		"total":    res.TotalChecks,
 		"messages": messages,
+	})
+}
+
+type ExposedServiceResponse struct {
+	DisplayName string
+	IconUrl     string
+	Url         string
+}
+
+func mapEnvoyVirtualHostToExposedService(vhost envoy.EnvoyVirtualHost) ExposedServiceResponse {
+
+	return ExposedServiceResponse{}
+}
+
+func handleExposedServicesAvailable(c *gin.Context) {
+	// _ := []envoy.EnvoyVirtualHost{
+	// 	envoy.NewVirtualHost("www.cloud.buc.sh", ""),
+	// }
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "ok",
+		"items": []ExposedServiceResponse{
+			{DisplayName: "R2", IconUrl: "/icons/minio-logo-old.webp", Url: "http://github.com/rhomasbuchinger"},
+		},
 	})
 }
