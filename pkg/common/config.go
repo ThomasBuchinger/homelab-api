@@ -13,51 +13,42 @@ const (
 	ServerModePublic      = "public"
 	ServerModeCopyGeoipDB = "copy_geoip_database"
 
-	EnvMode                = "MODE"
-	EnvGeoipDatabase       = "GEOIP_DATABASE"
-	EnvCopyGeipDestination = "COPY_GEOIP_DATABASE"
-	EnvAuthCountries       = "AUTH_COUNTRIES"
-	EnvAuthUser            = "AUTH_COUNTRIES"
-	EnvAuthPass            = "AUTH_COUNTRIES"
+	EnvMode = "MODE"
 )
 
 type Serverconfig struct {
-	GinMode       string
-	JsonLogs      bool
-	RootLogger    *zap.SugaredLogger
-	AuthCountries string
+	GinMode    string
+	JsonLogs   bool
+	RootLogger *zap.SugaredLogger
 
-	EnableInternalApis bool
-	EnableLegacyApi    bool
-
-	TaskCopyGeoip bool
-
-	EnableGeoip       bool
-	GeoipDatabasePath string
+	HomelabEnv struct {
+		EvergreenKubeStateMetricsUrl string
+		EvergreenConsoleUrl          string
+		ProdKubeStateMetricsUrl      string
+		ProdConsoleUrl               string
+	}
 }
 
 func GetServerConfig() Serverconfig {
+	conf := Serverconfig{
+		GinMode:  EnableFeatureInMode([]string{ServerModeDev}, gin.DebugMode, gin.ReleaseMode),
+		JsonLogs: EnableFeatureInMode([]string{ServerModeInternal, ServerModePublic}, true, false),
+	}
+
 	var logger *zap.Logger
 	if EnableFeatureInMode([]string{ServerModeDev}, true, false) {
 		logger, _ = zap.NewDevelopment()
 	} else {
 		logger, _ = zap.NewProduction()
 	}
+	conf.RootLogger = logger.Sugar()
 
-	return Serverconfig{
-		GinMode:       EnableFeatureInMode([]string{ServerModeDev}, gin.DebugMode, gin.ReleaseMode),
-		JsonLogs:      EnableFeatureInMode([]string{ServerModeInternal, ServerModePublic}, true, false),
-		RootLogger:    logger.Sugar(),
-		AuthCountries: GetEnvWithDefault(EnvAuthCountries, ""),
+	conf.HomelabEnv.EvergreenConsoleUrl = "http://evergreen-console.10.0.0.16.nip.io"
+	conf.HomelabEnv.EvergreenKubeStateMetricsUrl = "http://kube-state-metrics.10.0.0.16.nip.io/metrics"
+	conf.HomelabEnv.ProdConsoleUrl = "http://prod-console.10.0.0.21.nip.io"
+	conf.HomelabEnv.ProdKubeStateMetricsUrl = "http://kube-state-metrics.10.0.0.21.nip.io/metrics"
 
-		EnableInternalApis: EnableFeatureInMode([]string{ServerModeDev, ServerModeInternal}, true, false),
-		EnableLegacyApi:    EnableFeatureInMode([]string{ServerModeDev, ServerModeInternal}, true, false),
-
-		TaskCopyGeoip: GetEnvWithDefault(EnvCopyGeipDestination, "") != "",
-
-		EnableGeoip:       featureGeoip.Enabled,
-		GeoipDatabasePath: featureGeoip.DatapasePath,
-	}
+	return conf
 }
 
 func EnableFeatureInMode[V any](mode []string, enabled V, disabled V) V {

@@ -2,16 +2,11 @@
   "packages": [
     "nodejs@latest",
     "go@latest",
-    "gotools",
-    "gopls",
-    "go-outline",
-    "gocode",
-    "gopkgs",
-    "gocode-gomod",
-    "godef",
-    "golint"
-
+    "delve@latest"
   ],
+  "env": {
+    "CGO_ENABLED": "0"
+  },
   "shell": {
     "init_hook": [
       "echo 'Welcome to devbox!' > /dev/null"

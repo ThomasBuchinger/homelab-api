@@ -4,7 +4,8 @@ build: ui/out/
 	cd ui/ && npm run build
 	go build .
 
-
+test:
+	go test ./...
 
 build-container-image:
 	podman build --tag homelab-api .

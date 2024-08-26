@@ -4,10 +4,9 @@ const nextConfig = {
   images: { unoptimized: true },
   async rewrites() {
     return [
-      { source: '/api/:slug', destination: 'http://localhost:8080/api/:slug' },
-      { source: '/api/public/:slug', destination: 'http://localhost:8080/api/public/:slug' },
-      { source: '/api/legacy/:slug', destination: 'http://localhost:8080/api/legacy/:slug' },
-      { source: '/api/internal/:slug', destination: 'http://localhost:8080/api/internal/:slug' },
+      { source: '/api{/}?', destination: 'http://localhost:8080/api' },
+      { source: '/api/component/:slug', destination: 'http://localhost:8080/api/component/:slug' },
+      // { source: '/api/componenet/:slug', destination: 'http://localhost:8080/api/componenet/:slug' },
     ]
   },
 }

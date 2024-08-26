@@ -1,31 +1,60 @@
 import styles from './page.module.css'
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2'
-import {  Divider } from '@mui/material'
-import { Externalapps } from './ui/things/applicationLinks'
-import { HealthStatusPublic } from './ui/elements/public_health_status'
-import { ExternalS3 } from './ui/things/s3'
+import {  Divider, Stack, Typography } from '@mui/material'
+import PaperlessHealth from './ui/elements/PaperlessHealth'
+import SyncthingHealth from './ui/elements/SyncthingHealth'
+import QuickinkButton from './ui/elements/QuickLinkButton'
+import KubernetesHealth from './ui/elements/KubernetesHealth'
 
 export default function Home() {
   return (
     <main className={styles.main}>
       <Grid2  container spacing={2} justifyContent={"center"} xs={12}>
         <Grid2 xs={12}>
-          <Divider variant='fullWidth' className={styles.code} style={{ marginTop: "50px", marginBottom: "50px" }}> Status Overview</Divider>
-        </Grid2>
-        <Grid2 xs={2}>
-          <HealthStatusPublic target={"Servers"} />
-        </Grid2>
-        <Grid2 xs={2}>
-          <HealthStatusPublic target={"Network"} />
-        </Grid2>
-        <Grid2 xs={2}>
-          <HealthStatusPublic target={"External API"} />
-        </Grid2>
-        <Grid2 xs={12}>
-          <Divider variant='fullWidth' className={styles.code} style={{ marginTop: "50px", marginBottom: "50px" }}> Applications</Divider>
+          <Divider variant='fullWidth' className={styles.code} style={{ marginBottom: "50px" }}> HomeLab Overview</Divider>
         </Grid2>
         <Grid2>
-          <ExternalS3 internal={false}/>
+          <KubernetesHealth />
+        </Grid2>
+        <Grid2>
+          <PaperlessHealth />
+        </Grid2>
+        <Grid2>
+          <SyncthingHealth />
+        </Grid2>
+        <Grid2 xs={12}>
+          <Divider variant='fullWidth' className={styles.code} style={{ marginTop: "50px", marginBottom: "50px" }}> Links</Divider>
+        </Grid2>
+        <Grid2 xs={10}>
+          <Stack direction={'row'} justifyContent={'space-evenly'}>
+            <QuickinkButton name="H3" icon_url="/icons/cockpit.png" url="https://10.0.0.14:9090" />
+            <QuickinkButton name="NAS" icon_url="/icons/logo-TrueNAS-Scale-compressor.webp" url="http://10.0.0.19" />
+            <QuickinkButton name="BUC-KVM" icon_url="/icons/cockpit.png" url="https://10.0.0.13:9090" />
+            <QuickinkButton name="Bastion" icon_url="/icons/cockpit.png" url="https://10.0.0.22:9090" />
+            <QuickinkButton name="Evergreen" icon_url="/icons/cockpit.png" url="https://10.0.0.16:9090" />
+            <QuickinkButton name="OKD Evergreen" icon_url="/icons/kubernetes-icon-color.svg" url="http://evergreen-console.10.0.0.16.nip.io/k8s/all-namespaces/core~v1~Pod" />
+            <QuickinkButton name="OKD Prod" icon_url="/icons/kubernetes-icon-color.svg" url="http://prod-console.10.0.0.21.nip.io/k8s/all-namespaces/core~v1~Pod" />
+            <QuickinkButton name="ArgoCD" icon_url="/icons/argo-icon-color.svg" url="http://argocd.10.0.0.21.nip.io" />
+            <QuickinkButton name="Flux" icon_url="/icons/flux-icon-color.svg" url="http://flux.10.0.0.16.nip.io" />
+          </Stack>
+        </Grid2>
+
+        <Grid2 xs={10}>
+          <Stack direction={'row'} justifyContent={'space-evenly'}>
+
+            <QuickinkButton name="Gatus" icon_url="/icons/gatus.svg" url="http://gatus.10.0.0.16.nip.io" />
+            <QuickinkButton name="Vault" icon_url="/icons/vault.svg" url="https://vault.buc.sh" />
+            <QuickinkButton name="Grafana" icon_url="/icons/grafana-logo.svg" url="https://grafana.buc.sh" />
+            <QuickinkButton name="Prometheus" icon_url="/icons/prometheus-icon-color.svg" url="https://grafana.buc.sh" />
+            <QuickinkButton name="Tracing" icon_url="/icons/grafana-logo.svg" url="https://grafana.buc.sh" />
+            <QuickinkButton name="Minio" icon_url="/icons/minio-logo-old.webp" url="http://10.0.0.19:9001" />
+            <QuickinkButton name="PiHole" icon_url="/icons/Pi-hole_vector_logo.svg" url="http://pihole.10.0.0.16.nip.io" />
+            <QuickinkButton name="PDF" icon_url="/icons/stirling-pdf.png" url="https://pdf.buc.sh" />
+            <QuickinkButton name="Wastbin" icon_url="/icons/wastebin-logo.png" url="https://paste.buc.sh" />
+            <QuickinkButton name="Envoy" icon_url="/icons/React Logo.svg" url="https://envoy.buc.sh" />
+            <QuickinkButton name="NTFY" icon_url="/icons/React Logo.svg" url="https://push.buc.sh" />
+            <QuickinkButton name="S3 Browser" icon_url="/icons/React Logo.svg" url="https://r2.buc.sh" />
+          </Stack>
         </Grid2>
       </Grid2>
     </main>

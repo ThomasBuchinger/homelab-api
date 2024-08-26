@@ -1,4 +1,4 @@
-package backend
+package api
 
 import (
 	"net/http"
@@ -33,11 +33,12 @@ func SetupRouter() *gin.Engine {
 	router.Use(static.Serve("/", static.LocalFile("./ui/out", true)))
 	router.Use(static.Serve("/geoip", static.LocalFile("/geoip", true)))
 
-	router = setupApiEndpoints(router)
+	router = setupCommonApiEndpoints(router)
+	router = setupFrontendApiEndpoints(router)
 	return router
 }
 
-func setupApiEndpoints(r *gin.Engine) *gin.Engine {
+func setupCommonApiEndpoints(r *gin.Engine) *gin.Engine {
 
 	r.GET("/api/livez", handlePing)
 	r.GET("/api/readyz", handlePing)
@@ -45,21 +46,7 @@ func setupApiEndpoints(r *gin.Engine) *gin.Engine {
 
 	// Publicly accessible API endpoints
 	r.GET("/api/public/ping", handlePing)
-	r.GET("/api/public/client-config", handleClientConfig)
-	r.GET("/api/public/health", handlePublicHealth)
 
-	// API endpoints only available in "internal" mode
-	serverConfig := common.GetServerConfig()
-	if serverConfig.EnableInternalApis {
-		r.GET("/api/legacy/ping", handlePing)
-		r.GET("/api/legacy/proxy", handleLegacyProxy)
-		r.GET("/api/legacy/metrics", handleLegacyMetrics)
-	}
-	if serverConfig.EnableInternalApis {
-		r.GET("/api/internal/ping", handlePing)
-		r.GET("/api/auth/*authpath", handleAuth)
-		// r.GET("/api/auth/login/*authpath", handleAuth)
-	}
 	return r
 }
 
