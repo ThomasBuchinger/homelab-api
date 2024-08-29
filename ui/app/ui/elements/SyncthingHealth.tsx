@@ -26,16 +26,16 @@ export default function SyncthingHealth() {
         <CardContent>
           <Typography>Devices:</Typography>
           {data.devices.map((dev: any) => {
-            return <ComponentContentValue key={dev.DisplayName} label={dev.DisplayName} value={dev.Status} />
+            return <ComponentContentValue key={dev.display_name} label={dev.display_name} value={dev.status} />
           })}
           <Typography>Folders:</Typography>
           {data.folders.map((dir: any) => {
-            return <ComponentContentValue key={dir.DisplayName} label={dir.DisplayName} value={dir.Status} />
+            return <ComponentContentValue key={dir.display_name} label={dir.display_name} value={dir.status} />
           })}
         </CardContent>
       </CardActionArea>
       <CardActions>
-        <Button href={data.alt_url}>NIP</Button>
+        <Button href={data.alt_url}>Restart</Button>
       </CardActions>
     </Card>
   );

@@ -1,9 +1,11 @@
 package common
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
@@ -21,12 +23,53 @@ type Serverconfig struct {
 	JsonLogs   bool
 	RootLogger *zap.SugaredLogger
 
-	HomelabEnv struct {
-		EvergreenKubeStateMetricsUrl string
-		EvergreenConsoleUrl          string
-		ProdKubeStateMetricsUrl      string
-		ProdConsoleUrl               string
+	ConfigFileContent
+}
+type ConfigFileContent struct {
+	Homelab struct {
+		Evergreen struct {
+			KubeStateMetricsUrl string
+			ConsoleUrl          string
+		}
+		Prod struct {
+			KubeStateMetricsUrl string
+			ConsoleUrl          string
+		}
+		Syncthing struct {
+			MetricsUrl string
+			AuthUser   string
+			AuthPass   string
+		}
+		Paperless struct {
+			MetricsUrl string
+			AuthUser   string
+			AuthPass   string
+		}
 	}
+}
+
+func SetupViperConfig() {
+	// viper.SetConfigName("*")
+	// viper.AddConfigPath("./config")
+	// viper.AddConfigPath("/config")
+
+	viper.SetDefault("homelab.evergreen.consoleUrl", "")
+	viper.SetDefault("homelab.evergreen.kubeStateMetricsUrl", "")
+	viper.SetDefault("homelab.prod.consoleUrl", "")
+	viper.SetDefault("homelab.prod.kubeStateMetricsUrl", "")
+	viper.SetDefault("homelab.syncthing.metricsUrl", "d")
+	viper.SetDefault("homelab.syncthing.authUser", "")
+	viper.SetDefault("homelab.syncthing.authPass", "")
+	viper.SetDefault("homelab.id", "default")
+
+	viper.BindEnv("homelab.syncthing.authUser", "SYNCTHING_USER")
+	viper.BindEnv("homelab.syncthing.authPass", "SYNCTHING_PASSWORD", "SYNCTHING_PASS")
+
+	viper.SetConfigFile("./config/local.yaml")
+	viper.SetConfigType("yaml")
+	viper.ReadInConfig()
+	viper.SetConfigFile("./config/secret.yaml")
+	viper.MergeInConfig()
 }
 
 func GetServerConfig() Serverconfig {
@@ -43,11 +86,13 @@ func GetServerConfig() Serverconfig {
 	}
 	conf.RootLogger = logger.Sugar()
 
-	conf.HomelabEnv.EvergreenConsoleUrl = "http://evergreen-console.10.0.0.16.nip.io"
-	conf.HomelabEnv.EvergreenKubeStateMetricsUrl = "http://kube-state-metrics.10.0.0.16.nip.io/metrics"
-	conf.HomelabEnv.ProdConsoleUrl = "http://prod-console.10.0.0.21.nip.io"
-	conf.HomelabEnv.ProdKubeStateMetricsUrl = "http://kube-state-metrics.10.0.0.21.nip.io/metrics"
-
+	var labconf ConfigFileContent
+	err := viper.Unmarshal(&labconf)
+	if err != nil {
+		fmt.Println("PANIC: got an error reading config")
+		panic(err)
+	}
+	conf.ConfigFileContent = labconf
 	return conf
 }
 

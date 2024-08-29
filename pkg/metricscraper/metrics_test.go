@@ -1,9 +1,10 @@
-package reconciler_test
+package metricscraper_test
 
 import (
 	"testing"
 
-	"github.com/thomasbuchinger/homelab-api/pkg/reconciler"
+	"github.com/thomasbuchinger/homelab-api/pkg/common"
+	"github.com/thomasbuchinger/homelab-api/pkg/metricscraper"
 )
 
 const MOCK_METRICS string = `
@@ -12,6 +13,11 @@ fake_up 1
 fake_down 0
 fake_pods_total{namespace="ns1",deployment="name"} 2
 fake_pods_total{namespace="ns2",deployment="name"} 2
+
+
+fake_group_num{namespace="ns1",deployment="name"} 2
+fake_group_num{namespace="ns2",deployment="name"} 2
+fake_group_num{deployment="name"} 2
 
 # Real Example Metrics
 kube_configmap_info{namespace="cert-manager",configmap="kube-root-ca.crt"} 1
@@ -40,19 +46,19 @@ kube_pod_status_phase{namespace="traefik",pod="traefik-78599579c7-k4wnr",uid="43
 `
 
 func Test_MetricsReconciler_is_uninitialied_after_reation(t *testing.T) {
-	mr := reconciler.NewDummyMetricsReconciler(MOCK_METRICS)
+	mr := metricscraper.NewDummyMetricsReconciler(MOCK_METRICS)
 
-	if mr.GetSatus() != reconciler.ReconcilerStatusInvalid {
-		t.Error("Fresh MetricsReconciler should be invalid")
+	if mr.GetSatus() != common.ReconcilerStatusNew {
+		t.Error("Fresh MetricsReconciler should be NEW")
 	}
 }
 
 func Test_MetricsReconciler_should_be_ok_after_running_reconcile_once(t *testing.T) {
-	mr := reconciler.NewDummyMetricsReconciler(MOCK_METRICS)
-	mr.AddMetric("unittest", reconciler.MetricSelect{Name: "fake_pods_total"})
+	mr := metricscraper.NewDummyMetricsReconciler(MOCK_METRICS)
+	mr.AddMetric("unittest", metricscraper.Metric{Name: "fake_pods_total"})
 	mr.Reconcile()
 
-	if mr.GetSatus() != reconciler.ReconcilerStatusOK {
+	if mr.GetSatus() != common.ReconcilerStatusOK {
 		t.Error("Reconciler should be ok")
 	}
 	if mr.Metrics["unittest"].Value != 4 {
@@ -63,61 +69,74 @@ func Test_MetricsReconciler_should_be_ok_after_running_reconcile_once(t *testing
 // Function Process Metric
 
 func Test_MetricsReconciler_ProcessMetric_should_read_a_simple_metric(t *testing.T) {
-	value, ok := reconciler.ProcessMetric(MOCK_METRICS, reconciler.MetricSelect{Name: "fake_up"})
+	value_map, ok := metricscraper.ProcessMetric(MOCK_METRICS, metricscraper.Metric{Name: "fake_up"})
 	if !ok {
 		t.Error("should return an OK boolean: ", ok)
 	}
-	if value != 1 {
-		t.Error("Metric fake_up should be 1. Value: ", value)
+	if value_map[metricscraper.MetricRootKey] != 1 {
+		t.Error("Metric fake_up should be 1. Value: ", value_map[metricscraper.MetricRootKey])
 	}
 }
 
 func Test_MetricsReconciler_ProcessMetric_should_return_not_ok_if_metrics_does_not_exist(t *testing.T) {
-	_, ok := reconciler.ProcessMetric(MOCK_METRICS, reconciler.MetricSelect{Name: "non_existent_metric"})
+	_, ok := metricscraper.ProcessMetric(MOCK_METRICS, metricscraper.Metric{Name: "non_existent_metric"})
 	if ok != false {
 		t.Error("A non-existent metric should return ok == false")
 	}
 }
 
 func Test_MetricsReconciler_ProcessMetric_adds_values_if_multiple_metrics_match(t *testing.T) {
-	value, _ := reconciler.ProcessMetric(MOCK_METRICS, reconciler.MetricSelect{Name: "fake_pods_total"})
-	if value != 4 {
-		t.Error("Metric fake_pods_total should be 4. Value: ", value)
+	value_map, _ := metricscraper.ProcessMetric(MOCK_METRICS, metricscraper.Metric{Name: "fake_pods_total"})
+	if value_map[metricscraper.MetricRootKey] != 4 {
+		t.Error("Metric fake_pods_total should be 4. Value: ", value_map)
 	}
 }
 
 func Test_MetricsReconciler_ProcessMetric_can_filter_by_label(t *testing.T) {
-	value, _ := reconciler.ProcessMetric(MOCK_METRICS, reconciler.MetricSelect{Name: "fake_pods_total", Labels: map[string]string{"namespace": "ns1"}})
-	if value != 2 {
-		t.Error("Metric fake_pods_total{ns1} should be 2. Value: ", value)
+	value_map, _ := metricscraper.ProcessMetric(MOCK_METRICS, metricscraper.Metric{Name: "fake_pods_total", Labels: map[string]string{"namespace": "ns1"}})
+	if value_map[metricscraper.MetricRootKey] != 2 {
+		t.Error("Metric fake_pods_total{ns1} should be 2. Value: ", value_map)
 	}
 }
 
 func Test_MetricsReconciler_ProcessMetric_matching_labels_should_be_added_even_if_some_labels_differ(t *testing.T) {
-	value, _ := reconciler.ProcessMetric(MOCK_METRICS, reconciler.MetricSelect{Name: "fake_pods_total", Labels: map[string]string{"deployment": "name"}})
-	if value != 4 {
-		t.Error("Metric fake_pods_total{deployment=name} should be 4. Value: ", value)
+	value_map, _ := metricscraper.ProcessMetric(MOCK_METRICS, metricscraper.Metric{Name: "fake_pods_total", Labels: map[string]string{"deployment": "name"}})
+	if value_map[metricscraper.MetricRootKey] != 4 {
+		t.Error("Metric fake_pods_total{deployment=name} should be 4. Value: ", value_map)
+	}
+}
+
+func Test_MetricsReconciler_ProcessMetric_GroupBy_works(t *testing.T) {
+	value_map, _ := metricscraper.ProcessMetric(MOCK_METRICS, metricscraper.Metric{Name: "fake_group_num", Labels: map[string]string{"deployment": "name"}, GroupBy: "namespace"})
+	if value_map[metricscraper.MetricRootKey] != 2 {
+		t.Error("Metric fake_group_num{deployment=name} should be 2 for MetricRootKey. Value: ", value_map)
+	}
+	if value_map["ns1"] != 2 {
+		t.Error("Metric fake_group_num{deployment=name} should be 2 for MetricRootKey. Value: ", value_map)
+	}
+	if value_map["ns2"] != 2 {
+		t.Error("Metric fake_group_num{deployment=name} should be 2 for MetricRootKey. Value: ", value_map)
 	}
 }
 
 // Function: FindMetricLabels
 
 func Test_MetricsReconciler_FindMetricLabel_should_return_empty_for_no_labels(t *testing.T) {
-	labels := reconciler.FindMetricLabels("metric 1")
+	labels := metricscraper.FindMetricLabels("metric 1")
 	if len(labels) != 0 {
 		t.Error("Metric 'metric 1' has no labels. Labels: ", labels)
 	}
 }
 
 func Test_MetricsReconciler_FindMetricLabel_should_return_empty_for_empty_label_list(t *testing.T) {
-	labels := reconciler.FindMetricLabels("metric{} 1")
+	labels := metricscraper.FindMetricLabels("metric{} 1")
 	if len(labels) != 0 {
 		t.Error("Metric 'metric 1' has no labels. Labels: ", labels)
 	}
 }
 
 func Test_MetricsReconciler_FindMetricLabel_should_return_labels_for_a_single_label(t *testing.T) {
-	labels := reconciler.FindMetricLabels(`metric{key="value"} 1`)
+	labels := metricscraper.FindMetricLabels(`metric{key="value"} 1`)
 	if len(labels) != 1 {
 		t.Error("Metric 'metric{key=\"value\"}' has 1 label. Labels: ", labels)
 	}
@@ -127,7 +146,7 @@ func Test_MetricsReconciler_FindMetricLabel_should_return_labels_for_a_single_la
 }
 
 func Test_MetricsReconciler_FindMetricLabel_should_return_labels_for_multiple_labels(t *testing.T) {
-	labels := reconciler.FindMetricLabels(`metric{key="value",key2="value2"} 1`)
+	labels := metricscraper.FindMetricLabels(`metric{key="value",key2="value2"} 1`)
 	if labels["key"] != "value" {
 		t.Error("Label 'key' should be 'value'. Labels: ", labels)
 	}
@@ -137,14 +156,14 @@ func Test_MetricsReconciler_FindMetricLabel_should_return_labels_for_multiple_la
 }
 
 func Test_MetricsReconciler_FindMetricLabel_should_ignore_missing_quotes(t *testing.T) {
-	labels := reconciler.FindMetricLabels(`metric{key=value} 1`)
+	labels := metricscraper.FindMetricLabels(`metric{key=value} 1`)
 	if labels["key"] != "value" {
 		t.Error("Label 'key' should be 'value'. Labels: ", labels)
 	}
 }
 
 func Test_MetricsReconciler_FindMetricLabel_should_be_able_to_parse_a_real_example(t *testing.T) {
-	labels := reconciler.FindMetricLabels(`kube_pod_status_phase{namespace="paperless",pod="paperless-0",phase="Failed"} 0
+	labels := metricscraper.FindMetricLabels(`kube_pod_status_phase{namespace="paperless",pod="paperless-0",phase="Failed"} 0
 `)
 	if labels["namespace"] != "paperless" {
 		t.Error("Label 'namespace' should be 'paperless'. Labels: ", labels)

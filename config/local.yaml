@@ -1,0 +1,12 @@
+id: "hello"
+homelab:
+  evergreen:
+    consoleUrl: "http://evergreen-console.10.0.0.16.nip.io"
+    kubeStateMetricsUrl: "http://kube-state-metrics.10.0.0.16.nip.io/metrics"
+  prod:
+    consoleUrl: "http://prod-console.10.0.0.21.nip.io"
+    kubeStateMetricsUrl: "http://kube-state-metrics.10.0.0.21.nip.io/metrics"
+  syncthing:
+    metricsUrl: "https://syncthing.buc.sh/metrics"
+    # auth_user: ""
+    # auth_pass: ""

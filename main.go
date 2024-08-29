@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	common.SetupViperConfig()
 	serverConfig := common.GetServerConfig()
 	router := api.SetupRouter()
 

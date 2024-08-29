@@ -8,6 +8,24 @@ import (
 	"github.com/thomasbuchinger/homelab-api/pkg/reconciler"
 )
 
+var SyncthingDeviceIdMapping map[string]string = map[string]string{
+	"JJIQV62-GSKZ5JB-7ORT5P2-K7OBLU6-2GCHWE5-3HNI4X7-2XVEBQD-P6D6JQT": "__skip__",
+	"KA73NYG-7KJX5BO-TSWMNWC-J2WYBWV-B2WQK7X-G2B3TSX-M6EKEJS-BA2KLQQ": "BS13",
+	"2C3RPBD-V4ZPEJW-5SDPWK6-H2FHE3Z-O4GF7AR-7QY7PDZ-3CXYXH6-OIV46Q6": "BUC Lenovo",
+	"DWP4JSL-6SSJQW3-ZKG25PY-NWD7IZH-5OFOV2E-BVREQ63-BKMKOUO-44CKNAJ": "Nokia 3.4",
+}
+var SyncthingFolderStateMapping map[int]string = map[int]string{
+	0: "Sync",
+	1: "Sync",
+	2: "Sync",
+	3: "Progress",
+	4: "Progress",
+	5: "Progress",
+	6: "Progress",
+	7: "Progress",
+	8: "Error",
+}
+
 func setupFrontendApiEndpoints(r *gin.Engine) *gin.Engine {
 	r.GET("/api/component/paperless", handleComponentPaperless)
 	r.GET("/api/component/syncthing", handleComponentSyncthing)
@@ -49,43 +67,44 @@ func handleComponentBastion(c *gin.Context) {
 	})
 }
 
-type ApiSyncthingDeviceStatusV1 struct {
-	Id          string
-	DisplayName string
-	Status      string
-}
-type ApiSyncthingFolderStatusV1 struct {
-	Id          string
-	DisplayName string
-	Status      string
-}
-
 func handleComponentSyncthing(c *gin.Context) {
+	syncthing := reconciler.SyncthingMetric
+	devices := []gin.H{}
+	for devId, metric_value := range syncthing.Metrics["device_connections"].GroupedValues {
+		name, ok := SyncthingDeviceIdMapping[devId]
+		status := "disconnected"
+		if metric_value > 0 {
+			status = "OK"
+		}
+		if ok && name != "__skip__" {
+			devices = append(devices, gin.H{"display_name": SyncthingDeviceIdMapping[devId], "id": devId, "status": status})
+		}
+	}
+	folders := []gin.H{}
+	for folder, metric_value := range syncthing.Metrics["folder_state"].GroupedValues {
+		folders = append(folders, gin.H{"display_name": folder, "status": SyncthingFolderStateMapping[int(metric_value)], "raw_status": metric_value})
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"status":  "OK",
-		"reason":  "Success",
+		"status":  syncthing.GetSatus(),
+		"reason":  syncthing.GetReason(),
 		"url":     "http://syncthing.buc.sh",
-		"alt_url": "syncthing.10.0.0.21.nip.io",
-		"devices": []ApiSyncthingDeviceStatusV1{
-			ApiSyncthingDeviceStatusV1{Id: "laptop", DisplayName: "My Laptop", Status: "Connected"},
-		},
-		"folders": []ApiSyncthingFolderStatusV1{
-			ApiSyncthingFolderStatusV1{Id: "dir1", DisplayName: "A Directory", Status: "Sync"},
-		},
+		"devices": devices,
+		"folders": folders,
 	})
 }
 
 func handleComponentCombinedKubernetes(c *gin.Context) {
 	conf := common.GetServerConfig()
-	evergreenData := reconciler.KubernetesMetricEvergreen.Metrics
-	prodData := reconciler.KubernetesMetricProd.Metrics
+	evergreenData := reconciler.EvergreenMetric.Metrics
+	prodData := reconciler.ProdMetric.Metrics
 
 	c.JSON(http.StatusOK, gin.H{
-		"status": reconciler.KubernetesMetricEvergreen.GetSatus(),
-		"reason": reconciler.KubernetesMetricEvergreen.GetReason(),
+		"status": reconciler.EvergreenMetric.GetSatus(),
+		"reason": reconciler.EvergreenMetric.GetReason(),
 
-		"url_evergreen": conf.HomelabEnv.EvergreenConsoleUrl,
-		"urk_prod":      conf.HomelabEnv.ProdConsoleUrl,
+		"evergreen_url": conf.Homelab.Evergreen.ConsoleUrl,
+		"prod_url":      conf.Homelab.Prod.ConsoleUrl,
 		"pod_healthy": evergreenData["num_pod_succeess"].Value +
 			evergreenData["num_pod_running"].Value +
 			prodData["num_pod_succeess"].Value +

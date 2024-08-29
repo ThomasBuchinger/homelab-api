@@ -3,6 +3,7 @@
 /.devbox
 /devbox.lock
 /homelab-api
+/config/secret.yaml
 
 # dependencies
 node_modules

@@ -21,16 +21,20 @@ export default function KubernetesHealth() {
 
   return (
     <Card>
-      <CardActionArea href={data.url} target="_blank">
-        {ComponentHeader("Kubernetes", "/icons/kubernetes-icon-color.svg", API_URL, data.status, data.reason)}
-        <CardContent>
-          <ComponentContentValue label={"Healthy Pods"} value={data.pod_healthy + " / " + data.pod_total} />
-          <ComponentContentValue label={"Healthy PVCs"} value={data.pvc_healthy + " / " + data.pvc_total} />
-        </CardContent>
-      </CardActionArea>
+      {ComponentHeader("Kubernetes", "/icons/kubernetes-icon-color.svg", API_URL, data.status, data.reason)}
+      <CardContent>
+        Evergreen
+        <ComponentContentValue label={"Healthy Pods"} value={data.evergreen.pod_healthy + " / " + data.evergreen.pod_total} />
+        <ComponentContentValue label={"Healthy PVCs"} value={data.evergreen.pvc_healthy + " / " + data.evergreen.pvc_total} />
+      </CardContent>
+      <CardContent>
+        Prod
+        <ComponentContentValue label={"Healthy Pods"} value={data.prod.pod_healthy + " / " + data.prod.pod_total} />
+        <ComponentContentValue label={"Healthy PVCs"} value={data.prod.pvc_healthy + " / " + data.prod.pvc_total} />
+      </CardContent>
       <CardActions>
-        <Button href={data.evergreen_url}>Evergreen</Button>
-        <Button href={data.prod_url}>Prod</Button>
+        <Button href={data.evergreen_url} target="_blank">Evergreen</Button>
+        <Button href={data.prod_url} target="_blank">Prod</Button>
       </CardActions>
     </Card>
   );
