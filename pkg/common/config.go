@@ -49,18 +49,14 @@ type ConfigFileContent struct {
 }
 
 func SetupViperConfig() {
-	// viper.SetConfigName("*")
-	// viper.AddConfigPath("./config")
-	// viper.AddConfigPath("/config")
 
-	viper.SetDefault("homelab.evergreen.consoleUrl", "")
-	viper.SetDefault("homelab.evergreen.kubeStateMetricsUrl", "")
-	viper.SetDefault("homelab.prod.consoleUrl", "")
-	viper.SetDefault("homelab.prod.kubeStateMetricsUrl", "")
-	viper.SetDefault("homelab.syncthing.metricsUrl", "d")
+	viper.SetDefault("homelab.evergreen.consoleUrl", "http://evergreen-console.10.0.0.16.nip.io")
+	viper.SetDefault("homelab.evergreen.kubeStateMetricsUrl", "http://kube-state-metrics.10.0.0.16.nip.io/metrics")
+	viper.SetDefault("homelab.prod.consoleUrl", "http://prod-console.10.0.0.21.nip.io")
+	viper.SetDefault("homelab.prod.kubeStateMetricsUrl", "http://kube-state-metrics.10.0.0.21.nip.io/metrics")
+	viper.SetDefault("homelab.syncthing.metricsUrl", "https://syncthing.buc.sh/metrics")
 	viper.SetDefault("homelab.syncthing.authUser", "")
 	viper.SetDefault("homelab.syncthing.authPass", "")
-	viper.SetDefault("homelab.id", "default")
 
 	viper.BindEnv("homelab.syncthing.authUser", "SYNCTHING_USER")
 	viper.BindEnv("homelab.syncthing.authPass", "SYNCTHING_PASSWORD", "SYNCTHING_PASS")
