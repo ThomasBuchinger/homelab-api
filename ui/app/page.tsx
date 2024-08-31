@@ -1,6 +1,5 @@
 import styles from './page.module.css'
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2'
-import {  Divider, Stack, Typography } from '@mui/material'
+import {  Divider, Grid2, Stack, Typography } from '@mui/material'
 import PaperlessHealth from './ui/elements/PaperlessHealth'
 import SyncthingHealth from './ui/elements/SyncthingHealth'
 import QuickinkButton from './ui/elements/QuickLinkButton'
@@ -10,9 +9,9 @@ import NasHealth from './ui/elements/NasHealth'
 export default function Home() {
   return (
     <main className={styles.main}>
-      <Grid2  container spacing={2} justifyContent={"center"} xs={12}>
-        <Grid2 xs={12}>
-          <Divider variant='fullWidth' className={styles.code} style={{ marginBottom: "50px" }}> HomeLab Overview</Divider>
+      <Grid2  container spacing={2} justifyContent={"center"}>
+        <Grid2 size={{ xs: 12 }}>
+          <Divider variant='fullWidth' className={styles.code} style={{ marginBottom: "50px" }} > HomeLab Overview</Divider>
         </Grid2>
         <Grid2>
           <KubernetesHealth />
@@ -26,10 +25,10 @@ export default function Home() {
         <Grid2>
           <SyncthingHealth />
         </Grid2>
-        <Grid2 xs={12}>
+        <Grid2 size={{ xs: 12 }}>
           <Divider variant='fullWidth' className={styles.code} style={{ marginTop: "50px", marginBottom: "50px" }}> Links</Divider>
         </Grid2>
-        <Grid2  container xs={10} justifyContent={'space-evenly'}>
+        <Grid2 container justifyContent={'space-evenly'} size={{ xs: 10 }}>
           <Grid2>
             <QuickinkButton name="H3" icon_url="/icons/cockpit.png" url="https://10.0.0.14:9090" />
           </Grid2>
