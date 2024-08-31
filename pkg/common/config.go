@@ -70,6 +70,8 @@ func SetupViperConfig() {
 	viper.BindEnv("bindAddr", "BIND_ADDR")
 	viper.BindEnv("mode", "MODE")
 	viper.BindEnv("homelab.syncthing.internalMetricsUrl", "SYNCTHING_INTERNAL_METRICSURL")
+
+	viper.BindEnv("homelab.syncthing.metricsUrl", "SYNCTHING_METRICSURL")
 	viper.BindEnv("homelab.syncthing.authUser", "SYNCTHING_USER")
 	viper.BindEnv("homelab.syncthing.authPass", "SYNCTHING_PASSWORD", "SYNCTHING_PASS")
 
