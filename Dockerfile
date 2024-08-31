@@ -19,7 +19,7 @@ ADD ./go.mod ./go.sum ./
 
 ADD /geoip ./geoip
 ADD ./pkg pkg/
-ADD ./README.md ./main.go ./
+ADD ./README.md ./
 RUN go get
 RUN go build ./cmd/homelap-api
 RUN go build ./cmd/syncthing-helper
