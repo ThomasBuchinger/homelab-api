@@ -30,6 +30,7 @@ var SyncthingFolderStateMapping map[int]string = map[int]string{
 func SetupFrontendApiEndpoints(r *gin.Engine) *gin.Engine {
 	r.GET("/api/component/paperless", handleComponentPaperless)
 	r.GET("/api/component/syncthing", handleComponentSyncthing)
+	r.DELETE("/api/component/syncthing/restart", handleCommandRestartSyncthing)
 	r.GET("/api/component/kubernetes", handleComponentCombinedKubernetes)
 	r.GET("/api/component/nasv3", handleComponentNasv3)
 	return r
@@ -76,11 +77,12 @@ func handleComponentNasv3(c *gin.Context) {
 
 func handleComponentBastion(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"status":            "OK",
-		"reason":            "Success",
-		"url":               "http://10.0.0.22:9090",
-		"last_update":       "20240822T06:00:00Z",
-		"service_wireguard": "active",
+		"status":                "OK",
+		"reason":                "Success",
+		"url":                   "http://10.0.0.22:9090",
+		"service_dnf_automatic": "active",
+		"last_update":           "20240822T06:00:00Z",
+		"service_wireguard":     "active",
 	})
 }
 
@@ -142,4 +144,20 @@ func handleComponentCombinedKubernetes(c *gin.Context) {
 			"pvc_total":   prodData["num_pvc_total"].Value,
 		},
 	})
+}
+
+func handleCommandRestartSyncthing(c *gin.Context) {
+	ApiLogger.Debugln("Restarting Syncthing...")
+	config := common.GetServerConfig()
+	req, _ := http.NewRequestWithContext(c.Request.Context(), http.MethodDelete, config.Homelab.Syncthing.RestartUrl, http.NoBody)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		ApiLogger.Error("Failed to call Syncthing-Helper Restart Hook: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": common.ReconcilerStatusError,
+			"reason": err.Error(),
+		})
+	}
+
+	c.DataFromReader(res.StatusCode, res.ContentLength, "application/json", res.Body, map[string]string{})
 }

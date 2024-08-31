@@ -42,6 +42,8 @@ type ConfigFileContent struct {
 		Syncthing struct {
 			MetricsUrl         string
 			InternalMetricsUrl string
+			RestartUrl         string
+			MockRestart        string
 			AuthUser           string
 			AuthPass           string
 		}
@@ -64,6 +66,8 @@ func SetupViperConfig() {
 	viper.SetDefault("homelab.nas.metricsUrl", "http://10.0.0.19:9100/metrics")
 	viper.SetDefault("homelab.syncthing.metricsUrl", "http://syncthing.10.0.0.21.nip.io/metrics")
 	viper.SetDefault("homelab.syncthing.internalMetricsUrl", "http://syncthing:8384/metrics")
+	viper.SetDefault("homelab.syncthing.restartUrl", "http://syncthing.10.0.0.21.nip.io/api/syncthinghelper/restart")
+	viper.SetDefault("homelab.syncthing.mockRestart", "")
 	viper.SetDefault("homelab.syncthing.authUser", "")
 	viper.SetDefault("homelab.syncthing.authPass", "")
 

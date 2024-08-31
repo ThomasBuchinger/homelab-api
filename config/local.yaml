@@ -2,3 +2,5 @@
 homelab:
   syncthing:
     internalMetricsUrl: "http://syncthing.10.0.0.21.nip.io/metrics"
+    mockRestart: "yes"
+    restartUrl: "http://localhost:8080/api/syncthinghelper/restart"

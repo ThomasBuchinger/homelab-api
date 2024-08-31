@@ -6,6 +6,7 @@ const nextConfig = {
     return [
       { source: '/api{/}?', destination: 'http://localhost:8080/api' },
       { source: '/api/component/:slug', destination: 'http://localhost:8080/api/component/:slug' },
+      { source: '/api/component/syncthing/:slug', destination: 'http://localhost:8080/api/component/syncthing/:slug' },
       // { source: '/api/componenet/:slug', destination: 'http://localhost:8080/api/componenet/:slug' },
     ]
   },

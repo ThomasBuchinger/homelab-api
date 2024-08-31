@@ -3,6 +3,8 @@ import { Button, Card, CardActionArea, CardActions, CardContent, Stack, Typograp
 import useSWR from "swr";
 import { FallbackCardError, FallbackCardLoading } from "./FallbackCards";
 import { ComponentContentValue, ComponentHeader } from "../parts/Component";
+import axios from "axios";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 
 
 export default function SyncthingHealth() {
@@ -22,6 +24,25 @@ export default function SyncthingHealth() {
   type syncthingObject = { display_name: string, status: string }
   const sortfunc = (a: syncthingObject, b: syncthingObject) => { return a.display_name < b.display_name ? 1 : -1}
 
+
+  const handleRestart = async (e: any) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.delete("/api/component/syncthing/restart")
+      if (res.status == 200){
+        console.log(res.data);
+        toast.success("Restarted")
+      } else{
+        console.log(res.data);
+        toast.error("Failed to Restart Syncthing Pod")
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to call Restart Hook")
+    }
+  };
+
   return (
     <Card>
       <CardActionArea href={data.url} target="_blank">
@@ -38,8 +59,9 @@ export default function SyncthingHealth() {
         </CardContent>
       </CardActionArea>
       <CardActions>
-        <Button href={data.alt_url}>Restart</Button>
+        <Button onClick={handleRestart} >Restart</Button>
       </CardActions>
+
     </Card>
   );
 }
