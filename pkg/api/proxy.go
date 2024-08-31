@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thomasbuchinger/homelab-api/pkg/common"
 )
 
 func ProxyWithBasicAuth(proxy_url, user, pass string, c *gin.Context) {
@@ -16,6 +17,7 @@ func ProxyWithBasicAuth(proxy_url, user, pass string, c *gin.Context) {
 
 	response, err := http.DefaultClient.Do(req)
 	if err != nil || response.StatusCode != http.StatusOK {
+		common.GetServerConfig().RootLogger.Errorln("Failed calling Proxy URL: ", response.StatusCode, err.Error())
 		c.Status(http.StatusServiceUnavailable)
 		return
 	}

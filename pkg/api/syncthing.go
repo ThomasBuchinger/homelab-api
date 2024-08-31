@@ -16,6 +16,7 @@ func SetupSyncthingApiEndpoints(r *gin.Engine) *gin.Engine {
 
 func handleSyncthingMetricsProxy(c *gin.Context) {
 	conf := common.GetServerConfig()
+	conf.RootLogger.Debug("Calling Matrics: ", conf.Homelab.Syncthing.InternalMetricsUrl)
 	ProxyWithBasicAuth(
 		conf.Homelab.Syncthing.InternalMetricsUrl,
 		conf.Homelab.Syncthing.AuthUser,
