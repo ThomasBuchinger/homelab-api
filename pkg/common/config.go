@@ -63,13 +63,13 @@ func SetupViperConfig() {
 	viper.SetDefault("homelab.prod.kubeStateMetricsUrl", "http://kube-state-metrics.10.0.0.21.nip.io/metrics")
 	viper.SetDefault("homelab.nas.metricsUrl", "http://10.0.0.19:9100/metrics")
 	viper.SetDefault("homelab.syncthing.metricsUrl", "http://syncthing.10.0.0.21.nip.io/metrics")
-	viper.SetDefault("homelab.syncthing.internalMetricsUrl", "http://syncthing.svc:8384/metrics")
+	viper.SetDefault("homelab.syncthing.internalMetricsUrl", "http://syncthing:8384/metrics")
 	viper.SetDefault("homelab.syncthing.authUser", "")
 	viper.SetDefault("homelab.syncthing.authPass", "")
 
 	viper.BindEnv("bindAddr", "BIND_ADDR")
 	viper.BindEnv("mode", "MODE")
-	viper.BindEnv("homelab.syncthing.internalMetricsUrl", "SYNCTHING_INTERNAL_URL")
+	viper.BindEnv("homelab.syncthing.internalMetricsUrl", "SYNCTHING_INTERNAL_METRICSURL")
 	viper.BindEnv("homelab.syncthing.authUser", "SYNCTHING_USER")
 	viper.BindEnv("homelab.syncthing.authPass", "SYNCTHING_PASSWORD", "SYNCTHING_PASS")
 
