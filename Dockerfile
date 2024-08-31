@@ -18,10 +18,11 @@ WORKDIR /go/github.com/thomasbuchinger/homelab-api
 ADD ./go.mod ./go.sum ./
 
 ADD /geoip ./geoip
+ADD ./cmd cmd/
 ADD ./pkg pkg/
 ADD ./README.md ./
-RUN go get
-RUN go build ./cmd/homelap-api
+RUN go get ./...
+RUN go build ./cmd/homelab-api
 RUN go build ./cmd/syncthing-helper
 RUN go test ./...
 
