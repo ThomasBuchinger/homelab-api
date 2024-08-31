@@ -15,7 +15,7 @@ import (
 
 var ApiLogger *zap.SugaredLogger = common.GetServerConfig().RootLogger.Named("API")
 
-func SetupRouter() *gin.Engine {
+func SetupDefaultRouter() *gin.Engine {
 	serverConfig := common.GetServerConfig()
 	logger := serverConfig.RootLogger.Desugar().Named("access")
 
@@ -30,11 +30,8 @@ func SetupRouter() *gin.Engine {
 	router.Use(ginzap.RecoveryWithZap(logger, false))
 	router.Use(requestid.New())
 
-	router.Use(static.Serve("/", static.LocalFile("./ui/out", true)))
-	router.Use(static.Serve("/geoip", static.LocalFile("/geoip", true)))
-
 	router = setupCommonApiEndpoints(router)
-	router = setupFrontendApiEndpoints(router)
+	// router = SetupFrontendApiEndpoints(router)
 	return router
 }
 
@@ -47,6 +44,12 @@ func setupCommonApiEndpoints(r *gin.Engine) *gin.Engine {
 	// Publicly accessible API endpoints
 	r.GET("/api/public/ping", handlePing)
 
+	return r
+}
+
+func SetupStaticFileServing(r *gin.Engine) *gin.Engine {
+	r.Use(static.Serve("/", static.LocalFile("./ui/out", true)))
+	r.Use(static.Serve("/geoip", static.LocalFile("/geoip", true)))
 	return r
 }
 

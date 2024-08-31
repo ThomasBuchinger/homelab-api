@@ -14,8 +14,6 @@ const (
 	ServerModeInternal    = "internal"
 	ServerModePublic      = "public"
 	ServerModeCopyGeoipDB = "copy_geoip_database"
-
-	EnvMode = "MODE"
 )
 
 type Serverconfig struct {
@@ -26,6 +24,9 @@ type Serverconfig struct {
 	ConfigFileContent
 }
 type ConfigFileContent struct {
+	BindAddr string
+	Mode     string
+
 	Homelab struct {
 		Evergreen struct {
 			KubeStateMetricsUrl string
@@ -35,10 +36,14 @@ type ConfigFileContent struct {
 			KubeStateMetricsUrl string
 			ConsoleUrl          string
 		}
-		Syncthing struct {
+		Nas struct {
 			MetricsUrl string
-			AuthUser   string
-			AuthPass   string
+		}
+		Syncthing struct {
+			MetricsUrl         string
+			InternalMetricsUrl string
+			AuthUser           string
+			AuthPass           string
 		}
 		Paperless struct {
 			MetricsUrl string
@@ -50,14 +55,21 @@ type ConfigFileContent struct {
 
 func SetupViperConfig() {
 
+	viper.SetDefault("bindAddr", ":8080")
+	viper.SetDefault("mode", "dev")
 	viper.SetDefault("homelab.evergreen.consoleUrl", "http://evergreen-console.10.0.0.16.nip.io")
 	viper.SetDefault("homelab.evergreen.kubeStateMetricsUrl", "http://kube-state-metrics.10.0.0.16.nip.io/metrics")
 	viper.SetDefault("homelab.prod.consoleUrl", "http://prod-console.10.0.0.21.nip.io")
 	viper.SetDefault("homelab.prod.kubeStateMetricsUrl", "http://kube-state-metrics.10.0.0.21.nip.io/metrics")
-	viper.SetDefault("homelab.syncthing.metricsUrl", "https://syncthing.buc.sh/metrics")
+	viper.SetDefault("homelab.nas.metricsUrl", "http://10.0.0.19:9100/metrics")
+	viper.SetDefault("homelab.syncthing.metricsUrl", "http://syncthing.10.0.0.21.nip.io/metrics")
+	viper.SetDefault("homelab.syncthing.internalMetricsUrl", "http://syncthing.svc:8384/metrics")
 	viper.SetDefault("homelab.syncthing.authUser", "")
 	viper.SetDefault("homelab.syncthing.authPass", "")
 
+	viper.BindEnv("bindAddr", "BIND_ADDR")
+	viper.BindEnv("mode", "MODE")
+	viper.BindEnv("homelab.syncthing.internalMetricsUrl", "SYNCTHING_INTERNAL_URL")
 	viper.BindEnv("homelab.syncthing.authUser", "SYNCTHING_USER")
 	viper.BindEnv("homelab.syncthing.authPass", "SYNCTHING_PASSWORD", "SYNCTHING_PASS")
 
@@ -66,6 +78,7 @@ func SetupViperConfig() {
 	viper.ReadInConfig()
 	viper.SetConfigFile("./config/secret.yaml")
 	viper.MergeInConfig()
+
 }
 
 func GetServerConfig() Serverconfig {
@@ -93,7 +106,7 @@ func GetServerConfig() Serverconfig {
 }
 
 func EnableFeatureInMode[V any](mode []string, enabled V, disabled V) V {
-	mode_envvar := GetEnvWithDefault(EnvMode, "dev")
+	mode_envvar := GetEnvWithDefault("MODE", "dev")
 	for _, v := range mode {
 		if mode_envvar == v {
 			return enabled

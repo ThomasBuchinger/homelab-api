@@ -21,7 +21,8 @@ ADD /geoip ./geoip
 ADD ./pkg pkg/
 ADD ./README.md ./main.go ./
 RUN go get
-RUN go build .
+RUN go build ./cmd/homelap-api
+RUN go build ./cmd/syncthing-helper
 RUN go test ./...
 
 FROM scratch AS app
@@ -33,5 +34,6 @@ ENV GEOIP_DATABASE=/geoip/GeoLite2-City.mmdb
 COPY /geoip /geoip
 COPY --from=ui /app/out/ ui/out
 COPY --from=api /go/github.com/thomasbuchinger/homelab-api/homelab-api /app
+COPY --from=api /go/github.com/thomasbuchinger/homelab-api/syncthing-helper /app
 
 ENTRYPOINT ["/app/homelab-api"]

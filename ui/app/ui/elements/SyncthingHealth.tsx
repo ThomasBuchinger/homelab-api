@@ -19,17 +19,20 @@ export default function SyncthingHealth() {
     return FallbackCardError(NAME, API_URL, error)
   }
 
+  type syncthingObject = { display_name: string, status: string }
+  const sortfunc = (a: syncthingObject, b: syncthingObject) => { return a.display_name < b.display_name ? 1 : -1}
+
   return (
     <Card>
       <CardActionArea href={data.url} target="_blank">
         {ComponentHeader("Syncthing", "/icons/syncthing-logo-128.png", API_URL, data.status, data.reason)}
         <CardContent>
           <Typography>Devices:</Typography>
-          {data.devices.map((dev: any) => {
+          {data.devices.sort(sortfunc).map((dev: syncthingObject) => {
             return <ComponentContentValue key={dev.display_name} label={dev.display_name} value={dev.status} />
           })}
           <Typography>Folders:</Typography>
-          {data.folders.map((dir: any) => {
+          {data.folders.sort(sortfunc).map((dir: syncthingObject) => {
             return <ComponentContentValue key={dir.display_name} label={dir.display_name} value={dir.status} />
           })}
         </CardContent>

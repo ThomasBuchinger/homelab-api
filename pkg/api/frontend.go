@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
@@ -26,10 +27,11 @@ var SyncthingFolderStateMapping map[int]string = map[int]string{
 	8: "Error",
 }
 
-func setupFrontendApiEndpoints(r *gin.Engine) *gin.Engine {
+func SetupFrontendApiEndpoints(r *gin.Engine) *gin.Engine {
 	r.GET("/api/component/paperless", handleComponentPaperless)
 	r.GET("/api/component/syncthing", handleComponentSyncthing)
 	r.GET("/api/component/kubernetes", handleComponentCombinedKubernetes)
+	r.GET("/api/component/nasv3", handleComponentNasv3)
 	return r
 }
 
@@ -43,17 +45,32 @@ func handleComponentPaperless(c *gin.Context) {
 	})
 }
 func handleComponentNasv3(c *gin.Context) {
+	m := reconciler.NasNodeMetrics
+	disks := []gin.H{}
+	for disk, metric_value := range m.Metrics["btrfs_errors"].GroupedValues {
+		cap_total, total_ok := m.Metrics["btrfs_total"].GroupedValues[disk]
+		cap_free, free_ok := m.Metrics["btrfs_unused"].GroupedValues[disk]
+		if strings.Contains(disk, "loop") && total_ok && free_ok {
+			continue
+		}
+
+		disks = append(disks, gin.H{"display_name": disk, "btrfs_error": metric_value == 0, "capacity_free": cap_free, "capacity_total": cap_total})
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"status":           "OK",
-		"reason":           "Success",
+		"status":           m.GetSatus(),
+		"reason":           m.GetReason(),
 		"url":              "http://10.0.0.19",
-		"backup_status":    "OK",
+		"backup_url":       "http://10.0.0.19:9898",
+		"parity_status":    "TODO",
+		"parity_timestamp": "20240822T03:00:00Z",
+		"parity_reason":    "Success",
+		"backup_status":    "TODO",
 		"backup_timestamp": "20240822T03:00:00Z",
 		"backup_reason":    "Success",
-		"disk_total":       "XX TB",
-		"disk_free":        "YY TB",
-		"disk_smart_ok":    "4",
-		"disk_smart_fail":  "2",
+		"disk_total":       m.Metrics["fs_total"].Value,
+		"disk_free":        m.Metrics["fs_free"].Value,
+		"disks":            disks,
 	})
 }
 

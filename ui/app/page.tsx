@@ -5,6 +5,7 @@ import PaperlessHealth from './ui/elements/PaperlessHealth'
 import SyncthingHealth from './ui/elements/SyncthingHealth'
 import QuickinkButton from './ui/elements/QuickLinkButton'
 import KubernetesHealth from './ui/elements/KubernetesHealth'
+import NasHealth from './ui/elements/NasHealth'
 
 export default function Home() {
   return (
@@ -15,6 +16,9 @@ export default function Home() {
         </Grid2>
         <Grid2>
           <KubernetesHealth />
+        </Grid2>
+        <Grid2>
+          <NasHealth />
         </Grid2>
         <Grid2>
           <PaperlessHealth />
@@ -30,7 +34,7 @@ export default function Home() {
             <QuickinkButton name="H3" icon_url="/icons/cockpit.png" url="https://10.0.0.14:9090" />
           </Grid2>
           <Grid2>
-            <QuickinkButton name="NAS" icon_url="/icons/logo-TrueNAS-Scale-compressor.webp" url="http://10.0.0.19" />
+            <QuickinkButton name="NAS" icon_url="/icons/unraid-logo.png" url="http://10.0.0.19" />
           </Grid2>
           <Grid2>
             <QuickinkButton name="BUC-KVM" icon_url="/icons/cockpit.png" url="https://10.0.0.13:9090" />

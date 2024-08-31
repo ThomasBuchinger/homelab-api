@@ -3,6 +3,7 @@
 /.devbox
 /devbox.lock
 /homelab-api
+/syncthing-helper
 /config/secret.yaml
 
 # dependencies

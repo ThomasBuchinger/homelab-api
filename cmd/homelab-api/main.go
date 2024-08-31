@@ -9,10 +9,15 @@ import (
 func main() {
 	common.SetupViperConfig()
 	serverConfig := common.GetServerConfig()
-	router := api.SetupRouter()
+	router := api.SetupDefaultRouter()
+	router = api.SetupStaticFileServing(router)
+	router = api.SetupFrontendApiEndpoints(router)
+	if common.EnableFeatureInMode([]string{common.ServerModeDev}, true, false) {
+		router = api.SetupSyncthingApiEndpoints(router)
+	}
 
 	serverConfig.RootLogger.Info("Starting HomeLAB API Server on :8080...")
 	defer serverConfig.RootLogger.Sync()
 	go reconciler.ReconcileLoop()
-	router.Run(common.GetEnvWithDefault("BIND_ADDR", ":8080"))
+	router.Run(common.GetEnvWithDefault("BIND_ADDR", serverConfig.BindAddr))
 }
