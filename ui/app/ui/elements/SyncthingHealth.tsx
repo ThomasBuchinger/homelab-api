@@ -3,8 +3,9 @@ import { Button, Card, CardActionArea, CardActions, CardContent, Stack, Typograp
 import useSWR from "swr";
 import { FallbackCardError, FallbackCardLoading } from "./FallbackCards";
 import { ComponentContentValue, ComponentHeader } from "../parts/Component";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Bounce, toast, ToastContainer } from "react-toastify";
+import { format } from "util";
 
 
 export default function SyncthingHealth() {
@@ -30,16 +31,11 @@ export default function SyncthingHealth() {
 
     try {
       const res = await axios.delete("/api/component/syncthing/restart")
-      if (res.status == 200){
-        console.log(res.data);
-        toast.success("Restarted")
-      } else{
-        console.log(res.data);
-        toast.error("Failed to Restart Syncthing Pod")
-      }
-    } catch (err) {
+      console.log(res.data);
+      toast.success("Restarted")
+    } catch (err: any) {
       console.log(err);
-      toast.error("Failed to call Restart Hook")
+      toast.error(format("Failed to Restart Syncthing Pod: %s / %s", err.response.data.status || "CALL_FAILED", err.response.data.reason || "") )
     }
   };
 

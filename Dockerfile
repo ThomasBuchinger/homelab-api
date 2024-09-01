@@ -24,6 +24,7 @@ ADD ./README.md ./
 RUN go get ./...
 RUN go build ./cmd/homelab-api
 RUN go build ./cmd/syncthing-helper
+RUN go build ./cmd/copy-geoip-for-envoy
 RUN go test ./...
 
 FROM scratch AS app
@@ -36,5 +37,6 @@ COPY /geoip /geoip
 COPY --from=ui /app/out/ ui/out
 COPY --from=api /go/github.com/thomasbuchinger/homelab-api/homelab-api /app
 COPY --from=api /go/github.com/thomasbuchinger/homelab-api/syncthing-helper /app
+COPY --from=api /go/github.com/thomasbuchinger/homelab-api/copy-geoip-for-envoy /app
 
 ENTRYPOINT ["/app/homelab-api"]
