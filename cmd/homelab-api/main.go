@@ -11,7 +11,7 @@ func main() {
 	serverConfig := common.GetServerConfig()
 	router := api.SetupDefaultRouter()
 	router = api.SetupStaticFileServing(router)
-	router = api.SetupFrontendApiEndpoints(router)
+	router = api.SetupBffApiEndpoints(router)
 	if common.EnableFeatureInMode([]string{common.ServerModeDev}, true, false) {
 		router = api.SetupSyncthingApiEndpoints(router)
 	}

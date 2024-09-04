@@ -27,12 +27,13 @@ var SyncthingFolderStateMapping map[int]string = map[int]string{
 	8: "Error",
 }
 
-func SetupFrontendApiEndpoints(r *gin.Engine) *gin.Engine {
-	r.GET("/api/component/paperless", handleComponentPaperless)
-	r.GET("/api/component/syncthing", handleComponentSyncthing)
-	r.DELETE("/api/component/syncthing/restart", handleCommandRestartSyncthing)
-	r.GET("/api/component/kubernetes", handleComponentCombinedKubernetes)
-	r.GET("/api/component/nasv3", handleComponentNasv3)
+func SetupBffApiEndpoints(r *gin.Engine) *gin.Engine {
+	r.GET("/api/public/bff/paperless", handleComponentPaperless)
+	r.GET("/api/public/bff/syncthing", handleComponentSyncthing)
+	r.GET("/api/public/bff/kubernetes", handleComponentCombinedKubernetes)
+	r.GET("/api/public/bff/nasv3", handleComponentNasv3)
+
+	r.DELETE("/api/private/bff/syncthing/restart", handleCommandRestartSyncthing)
 	return r
 }
 

@@ -9,7 +9,7 @@ import { ComponentContentValue, ComponentHeader } from "../parts/Component";
 
 export default function PaperlessHealth() {
   const NAME="Paperless"
-  const API_URL="/api/component/paperless"
+  const API_URL="/api/public/bff/paperless"
   const fetcher = async (url: string) => fetch(url).then(res => res.json())
   const { data, error, isLoading } = useSWR(API_URL, fetcher, { refreshInterval: 10000, fallbackData: { status: "invalid", messages: [] } })
 

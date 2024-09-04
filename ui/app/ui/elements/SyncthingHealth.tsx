@@ -10,7 +10,7 @@ import { format } from "util";
 
 export default function SyncthingHealth() {
   const NAME="Syncthing"
-  const API_URL="/api/component/syncthing"
+  const API_URL="/api/public/bff/syncthing"
   const fetcher = async (url: string) => fetch(url).then(res => res.json())
   const { data, error, isLoading } = useSWR(API_URL, fetcher, { refreshInterval: 10000, fallbackData: { status: "INVALID", messages: [] } })
 
@@ -30,7 +30,7 @@ export default function SyncthingHealth() {
     e.preventDefault();
 
     try {
-      const res = await axios.delete("/api/component/syncthing/restart")
+      const res = await axios.delete("/api/private/bff/syncthing/restart")
       console.log(res.data);
       toast.success("Restarted")
     } catch (err: any) {

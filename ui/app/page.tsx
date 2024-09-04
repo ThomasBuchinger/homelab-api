@@ -5,6 +5,7 @@ import SyncthingHealth from './ui/elements/SyncthingHealth'
 import QuickinkButton from './ui/elements/QuickLinkButton'
 import KubernetesHealth from './ui/elements/KubernetesHealth'
 import NasHealth from './ui/elements/NasHealth'
+import TvHealth from './ui/elements/TvHealth'
 
 export default function Home() {
   return (
@@ -24,6 +25,9 @@ export default function Home() {
         </Grid2>
         <Grid2>
           <SyncthingHealth />
+        </Grid2>
+        <Grid2>
+          <TvHealth />
         </Grid2>
         <Grid2 size={{ xs: 12 }}>
           <Divider variant='fullWidth' className={styles.code} style={{ marginTop: "50px", marginBottom: "50px" }}> Links</Divider>

@@ -5,8 +5,8 @@ const nextConfig = {
   async rewrites() {
     return [
       { source: '/api{/}?', destination: 'http://localhost:8080/api' },
-      { source: '/api/component/:slug', destination: 'http://localhost:8080/api/component/:slug' },
-      { source: '/api/component/syncthing/:slug', destination: 'http://localhost:8080/api/component/syncthing/:slug' },
+      { source: '/api/public/bff/:slug', destination: 'http://localhost:8080/api/public/bff/:slug' },
+      { source: '/api/private/bff/syncthing/:slug', destination: 'http://localhost:8080/api/private/bff/syncthing/:slug' },
       // { source: '/api/componenet/:slug', destination: 'http://localhost:8080/api/componenet/:slug' },
     ]
   },

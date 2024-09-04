@@ -7,7 +7,7 @@ import { ComponentContentValue, ComponentHeader } from "../parts/Component";
 
 export default function KubernetesHealth() {
   const NAME="Kubernetes"
-  const API_URL="/api/component/kubernetes"
+  const API_URL="/api/public/bff/kubernetes"
   const fetcher = async (url: string) => fetch(url).then(res => res.json())
   const { data, error, isLoading } = useSWR(API_URL, fetcher, { refreshInterval: 10000, fallbackData: { status: "INVALID", messages: [] } })
 

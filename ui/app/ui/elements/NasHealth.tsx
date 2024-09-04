@@ -9,7 +9,7 @@ import { format } from "util";
 
 export default function NasHealth() {
   const NAME = "nas.buc.sh"
-  const API_URL = "/api/component/nasv3"
+  const API_URL = "/api/public/bff/nasv3"
   const fetcher = async (url: string) => fetch(url).then(res => res.json())
   const { data, error, isLoading } = useSWR(API_URL, fetcher, { refreshInterval: 10000, fallbackData: { status: "INVALID", reason: "not implemented" } })
 
