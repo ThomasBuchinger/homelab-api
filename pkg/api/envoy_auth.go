@@ -39,10 +39,10 @@ func handleAuth(c *gin.Context) {
 	ApiLogger.Debugf("Authentication Request: Remote: %s | Host: %v | Path: %v | Headers: %v", c.RemoteIP(), c.Request.Host, c.Request.URL.Path, c.Request.Header)
 
 	if EvaluateAuthPolicyAgainstRequest(*c.Request, authPolicy).Passed {
-		ApiLogger.Info("Authorized: %s to %s/%v\n", ip, c.Request.Host, c.Request.URL.Path)
+		ApiLogger.Infof("Authorized: %s to %s/%v\n", ip, c.Request.Host, c.Request.URL.Path)
 		c.JSON(http.StatusOK, struct{}{})
 	} else {
-		ApiLogger.Info("Denied: %s to %s/%v\n", ip, c.Request.Host, c.Request.URL.Path)
+		ApiLogger.Infof("Denied: %s to %s/%v\n", ip, c.Request.Host, c.Request.URL.Path)
 		c.JSON(http.StatusForbidden, struct{}{})
 	}
 }
