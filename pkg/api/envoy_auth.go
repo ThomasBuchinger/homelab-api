@@ -12,7 +12,7 @@ import (
 )
 
 func SetupAuthApiEndpoints(r *gin.Engine) *gin.Engine {
-	r.Any("/auth", handleAuth)
+	r.Any("/auth/*authpath", handleAuth)
 	return r
 }
 
