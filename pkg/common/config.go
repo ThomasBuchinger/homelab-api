@@ -74,10 +74,11 @@ func SetupViperConfig() {
 	viper.SetDefault("homelab.syncthing.mockRestart", "")
 	viper.SetDefault("homelab.syncthing.authUser", "")
 	viper.SetDefault("homelab.syncthing.authPass", "")
-	viper.SetDefault("envoyAuthConfig.allowedCountries", "AT,CH,DE,IT,CR")
+	viper.SetDefault("envoyAuthConfig.allowedCountries", "AT,CH,DE,IT,HR")
 
 	viper.BindEnv("bindAddr", "BIND_ADDR")
 	viper.BindEnv("mode", "MODE")
+	viper.BindEnv("envoyAuthConfig.allowedCountries", "AUTH_ALLOWED_COUNTRIES")
 	viper.BindEnv("homelab.syncthing.internalMetricsUrl", "SYNCTHING_INTERNAL_METRICSURL")
 
 	viper.BindEnv("homelab.syncthing.metricsUrl", "SYNCTHING_METRICSURL")
