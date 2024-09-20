@@ -33,7 +33,9 @@ func SetupBffApiEndpoints(r *gin.Engine) *gin.Engine {
 	r.GET("/api/public/bff/kubernetes", handleComponentCombinedKubernetes)
 	r.GET("/api/public/bff/nasv3", handleComponentNasv3)
 
-	r.DELETE("/api/private/bff/syncthing/restart", handleCommandRestartSyncthing)
+	if syncthingReatartable() {
+		r.DELETE("/api/private/bff/syncthing/restart", handleCommandRestartSyncthing)
+	}
 	return r
 }
 
@@ -106,11 +108,12 @@ func handleComponentSyncthing(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":  syncthing.GetSatus(),
-		"reason":  syncthing.GetReason(),
-		"url":     "http://syncthing.buc.sh",
-		"devices": devices,
-		"folders": folders,
+		"status":      syncthing.GetSatus(),
+		"reason":      syncthing.GetReason(),
+		"url":         "http://syncthing.buc.sh",
+		"restartable": syncthingReatartable(),
+		"devices":     devices,
+		"folders":     folders,
 	})
 }
 
@@ -148,7 +151,7 @@ func handleComponentCombinedKubernetes(c *gin.Context) {
 }
 
 func handleCommandRestartSyncthing(c *gin.Context) {
-	ApiLogger.Debugln("Restarting Syncthing...")
+	ApiLogger.Infoln("Restarting Syncthing...")
 	config := common.GetServerConfig()
 	req, _ := http.NewRequestWithContext(c.Request.Context(), http.MethodDelete, config.Homelab.Syncthing.RestartUrl, http.NoBody)
 	res, err := http.DefaultClient.Do(req)
@@ -161,4 +164,8 @@ func handleCommandRestartSyncthing(c *gin.Context) {
 	}
 
 	c.DataFromReader(res.StatusCode, res.ContentLength, "application/json", res.Body, map[string]string{})
+}
+
+func syncthingReatartable() bool {
+	return common.EnableFeatureInMode([]string{common.ServerModeDev, common.ServerModeInternal}, true, false)
 }

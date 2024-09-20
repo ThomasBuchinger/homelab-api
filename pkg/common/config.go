@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -53,6 +54,9 @@ type ConfigFileContent struct {
 			AuthPass   string
 		}
 	}
+	EnvoyAuthConfig struct {
+		AllowedCountries string
+	}
 }
 
 func SetupViperConfig() {
@@ -70,6 +74,7 @@ func SetupViperConfig() {
 	viper.SetDefault("homelab.syncthing.mockRestart", "")
 	viper.SetDefault("homelab.syncthing.authUser", "")
 	viper.SetDefault("homelab.syncthing.authPass", "")
+	viper.SetDefault("envoyAuthConfig.allowedCountries", "AT,CH,DE,IT,CR")
 
 	viper.BindEnv("bindAddr", "BIND_ADDR")
 	viper.BindEnv("mode", "MODE")
@@ -109,6 +114,14 @@ func GetServerConfig() Serverconfig {
 	}
 	conf.ConfigFileContent = labconf
 	return conf
+}
+
+func GetConfigEnvoyAuthAllowedCountries() []string {
+	var allowed_countries []string
+	for _, country := range strings.Split(GetServerConfig().EnvoyAuthConfig.AllowedCountries, ",") {
+		allowed_countries = append(allowed_countries, strings.Trim(strings.ToUpper(country), " "))
+	}
+	return allowed_countries
 }
 
 func EnableFeatureInMode[V any](mode []string, enabled V, disabled V) V {

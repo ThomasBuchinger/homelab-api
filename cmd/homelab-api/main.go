@@ -9,9 +9,11 @@ import (
 func main() {
 	common.SetupViperConfig()
 	serverConfig := common.GetServerConfig()
+
 	router := api.SetupDefaultRouter()
 	router = api.SetupStaticFileServing(router)
 	router = api.SetupBffApiEndpoints(router)
+	router = api.SetupAuthApiEndpoints(router)
 	if common.EnableFeatureInMode([]string{common.ServerModeDev}, true, false) {
 		router = api.SetupSyncthingApiEndpoints(router)
 	}

@@ -8,7 +8,7 @@ import { format } from "util";
 
 
 export default function TvHealth() {
-  const NAME = "tv.buc.sh (Dummy) "
+  const NAME = "tv.buc.sh"
   const API_URL = "/api/public/bff/nasv3"
   const fetcher = async (url: string) => fetch(url).then(res => res.json())
   const { data, error, isLoading } = useSWR(API_URL, fetcher, { refreshInterval: 10000, fallbackData: { status: "INVALID", reason: "not implemented" } })
@@ -31,15 +31,21 @@ export default function TvHealth() {
         </CardContent>
       </CardActionArea>
       <CardActions>
-        <Stack>
-          <Button href="" target="_blank">Torrent</Button>
-          <Button href="" target="_blank">UseNet</Button>
-          <Button href="" target="_blank">Movies</Button>
-          <Button href="" target="_blank">Filme</Button>
-          <Button href="" target="_blank">Shows</Button>
-          <Button href="" target="_blank">Serien</Button>
-          <Button href="" target="_blank">Music</Button>
-        </Stack>
+        <Button href="" target="_blank">Torrent</Button>
+        <Button href="" target="_blank">UseNet</Button>
+      </CardActions>
+      <CardActions>
+        <Button href="" target="_blank">Movies</Button>
+        <Button href="" target="_blank">Shows</Button>
+        <Button href="" target="_blank">Music</Button>
+      </CardActions>
+
+      <CardActions>
+        <Button href="" target="_blank">Filme</Button>
+        <Button href="" target="_blank">Serien</Button>
+      </CardActions>
+
+      <CardActions>
       </CardActions>
     </Card>
   );
