@@ -1,7 +1,12 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 /.devbox
+/devbox.lock
 /homelab-api
+/public-api
+/syncthing-helper
+/copy-geoip-for-envoy
+/config/secret.yaml
 
 
 # dependencies

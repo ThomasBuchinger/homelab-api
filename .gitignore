@@ -3,7 +3,9 @@
 /.devbox
 /devbox.lock
 /homelab-api
+/public-api
 /syncthing-helper
+/copy-geoip-for-envoy
 /config/secret.yaml
 
 # dependencies

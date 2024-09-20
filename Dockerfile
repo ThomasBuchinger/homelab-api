@@ -23,6 +23,7 @@ ADD ./pkg pkg/
 ADD ./README.md ./
 RUN go get ./...
 RUN go build ./cmd/homelab-api
+RUN go build ./cmd/public-api
 RUN go build ./cmd/syncthing-helper
 RUN go build ./cmd/copy-geoip-for-envoy
 RUN go test ./...
@@ -36,6 +37,7 @@ ENV GEOIP_DATABASE=/geoip/GeoLite2-City.mmdb
 COPY /geoip /geoip
 COPY --from=ui /app/out/ ui/out
 COPY --from=api /go/github.com/thomasbuchinger/homelab-api/homelab-api /app
+COPY --from=api /go/github.com/thomasbuchinger/homelab-api/public-api /app
 COPY --from=api /go/github.com/thomasbuchinger/homelab-api/syncthing-helper /app
 COPY --from=api /go/github.com/thomasbuchinger/homelab-api/copy-geoip-for-envoy /app
 
