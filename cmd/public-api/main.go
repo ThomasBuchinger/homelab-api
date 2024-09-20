@@ -11,6 +11,7 @@ func main() {
 
 	router := api.SetupDefaultRouter()
 	router = api.SetupAuthApiEndpoints(router)
+	router = api.SetupDummyApiEndpointsForRunningInPublicMode(router)
 
 	serverConfig.RootLogger.Info("Starting PUBLIC HomeLAB API Server on :8080...")
 	defer serverConfig.RootLogger.Sync()

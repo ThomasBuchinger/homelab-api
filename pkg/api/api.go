@@ -53,6 +53,11 @@ func SetupStaticFileServing(r *gin.Engine) *gin.Engine {
 	return r
 }
 
+func SetupDummyApiEndpointsForRunningInPublicMode(r *gin.Engine) *gin.Engine {
+	r.GET("/", handlePing)
+	return r
+}
+
 func handlePing(c *gin.Context) {
 	c.String(http.StatusOK, "pong")
 }

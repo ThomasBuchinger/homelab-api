@@ -9,7 +9,6 @@ import TvHealth from './ui/elements/TvHealth'
 
 export default function Home() {
   return (
-    <main className={styles.main}>
       <Grid2  container spacing={2} justifyContent={"center"}>
         <Grid2 size={{ xs: 12 }}>
           <Divider variant='fullWidth' className={styles.code} style={{ marginBottom: "50px" }} > HomeLab Overview</Divider>
@@ -96,6 +95,5 @@ export default function Home() {
           </Grid2>
         </Grid2>
       </Grid2>
-    </main>
   )
 }
