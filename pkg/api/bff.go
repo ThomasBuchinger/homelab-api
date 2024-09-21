@@ -1,7 +1,10 @@
 package api
 
 import (
+	"fmt"
+	"maps"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -40,10 +43,14 @@ func SetupBffApiEndpoints(r *gin.Engine) *gin.Engine {
 }
 
 func handleComponentPaperless(c *gin.Context) {
+	m := reconciler.PaperlessMetrics
+
 	c.JSON(http.StatusOK, gin.H{
-		"status":          "OK",
-		"reason":          "Success",
-		"total_documents": "-1",
+		"status":          m.GetSatus(),
+		"reason":          m.GetReason(),
+		"total_documents": m.Metrics["docs_total"].Value,
+		"new_documents":   m.Metrics["docs_new"].Value,
+		"debug_tag_name":  fmt.Sprint(slices.Collect(maps.Keys(m.Metrics["tag_name"].GroupedValues))),
 		"url":             "https://paperless.buc.sh",
 		"alt_url":         "https://paperless.10.0.0.21.nip.io",
 	})

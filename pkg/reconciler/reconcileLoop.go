@@ -12,9 +12,10 @@ var ProdMetric *metricscraper.MetricsReconciler
 var EvergreenMetric *metricscraper.MetricsReconciler
 var SyncthingMetric *metricscraper.MetricsReconciler
 var NasNodeMetrics *metricscraper.MetricsReconciler
+var PaperlessMetrics *metricscraper.MetricsReconciler
 
 func ReconcileLoop() {
-	sleeptime, _ := time.ParseDuration("1m")
+	sleeptime, _ := time.ParseDuration("5m")
 	conf := common.GetServerConfig()
 
 	// kube_pod_status_phase{namespace="monitoring",pod="monitoring-kube-state-metrics-58fd4447c6-rzz5z",uid="77732041-59e7-46e7-af8a-5b8faadd6a4b",phase="Failed"} 0
@@ -45,6 +46,11 @@ func ReconcileLoop() {
 	NasNodeMetrics.AddMetric("fs_free", metricscraper.Metric{Name: "node_filesystem_avail_bytes", Labels: map[string]string{"mountpoint": "/mnt/user"}})
 	NasNodeMetrics.AddMetric("fs_total", metricscraper.Metric{Name: "node_filesystem_size_bytes", Labels: map[string]string{"mountpoint": "/mnt/user"}})
 
+	PaperlessMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Paperless.MetricsUrl)
+	PaperlessMetrics.AddMetric("tag_name", metricscraper.Metric{Name: "paperless_tag_info", Labels: map[string]string{"id": conf.Homelab.Paperless.NewDocTag}, GroupBy: "name"})
+	PaperlessMetrics.AddMetric("docs_new", metricscraper.Metric{Name: "paperless_tag_document_count", Labels: map[string]string{"id": conf.Homelab.Paperless.NewDocTag}})
+	PaperlessMetrics.AddMetric("docs_total", metricscraper.Metric{Name: "paperless_document_type_document_count"})
+
 	for {
 		conf.RootLogger.Logln(zap.DebugLevel, "Running Reconcilers...")
 
@@ -52,6 +58,7 @@ func ReconcileLoop() {
 		ProdMetric.Reconcile()
 		SyncthingMetric.Reconcile()
 		NasNodeMetrics.Reconcile()
+		PaperlessMetrics.Reconcile()
 
 		time.Sleep(sleeptime)
 	}

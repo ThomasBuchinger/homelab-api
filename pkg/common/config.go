@@ -50,8 +50,7 @@ type ConfigFileContent struct {
 		}
 		Paperless struct {
 			MetricsUrl string
-			AuthUser   string
-			AuthPass   string
+			NewDocTag  string
 		}
 	}
 	EnvoyAuthConfig struct {
@@ -68,6 +67,8 @@ func SetupViperConfig() {
 	viper.SetDefault("homelab.prod.consoleUrl", "http://prod-console.10.0.0.21.nip.io")
 	viper.SetDefault("homelab.prod.kubeStateMetricsUrl", "http://kube-state-metrics.10.0.0.21.nip.io/metrics")
 	viper.SetDefault("homelab.nas.metricsUrl", "http://10.0.0.19:9100/metrics")
+	viper.SetDefault("homelab.paperless.metricsUrl", "http://paperless.10.0.0.21.nip.io/metrics")
+	viper.SetDefault("homelab.paperless.newDocTag", "28")
 	viper.SetDefault("homelab.syncthing.metricsUrl", "http://syncthing.10.0.0.21.nip.io/metrics")
 	viper.SetDefault("homelab.syncthing.internalMetricsUrl", "http://syncthing:8384/metrics")
 	viper.SetDefault("homelab.syncthing.restartUrl", "http://syncthing.10.0.0.21.nip.io/api/syncthinghelper/restart")

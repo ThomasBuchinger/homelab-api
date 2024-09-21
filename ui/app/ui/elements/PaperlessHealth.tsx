@@ -27,6 +27,7 @@ export default function PaperlessHealth() {
         {ComponentHeader("Paperless", "/icons/paperless-square.svg", API_URL, data.status, data.reason)}
         <CardContent>
           <ComponentContentValue label="Total Documents:" value={data.total_documents || "-"} />
+          <ComponentContentValue label="New Documents" value={data.new_documents} />
         </CardContent>
       </CardActionArea>
       <CardActions>
