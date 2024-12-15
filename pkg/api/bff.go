@@ -65,7 +65,7 @@ func handleComponentNasv3(c *gin.Context) {
 			continue
 		}
 
-		disks = append(disks, gin.H{"display_name": disk, "btrfs_error": metric_value == 0, "capacity_free": cap_free, "capacity_total": cap_total})
+		disks = append(disks, gin.H{"display_name": disk, "btrfs_error": metric_value != 0, "capacity_free": cap_free, "capacity_total": cap_total})
 	}
 
 	c.JSON(http.StatusOK, gin.H{

@@ -33,7 +33,7 @@ export default function NasHealth() {
         <CardContent>
           <ComponentContentValue label={"Parity Check"} value={data.parity_status} />
           <ComponentContentValue label={"Backup"} value={data.backup_status + " - X days"} />
-          <ComponentContentValue label={"Total"} value={inTB(data.disk_free) + " / " + inTB(data.disk_total) + " TB (" + percent + "%)"} />
+          <ComponentContentValue label={"Free"} value={inTB(data.disk_free) + " / " + inTB(data.disk_total) + " TB (" + percent + "%)"} />
         </CardContent>
         <CardContent>
           Disks (Free Space)
