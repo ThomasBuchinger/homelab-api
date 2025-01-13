@@ -7,7 +7,7 @@ toolchain go1.23.4
 require (
 	github.com/gin-contrib/requestid v1.0.4
 	github.com/gin-contrib/zap v1.1.4
-	github.com/gin-gonic/contrib v0.0.0-20240508051311-c1c6bf0061b0
+	github.com/gin-gonic/contrib v0.0.0-20250113154928-93b827325fec
 	github.com/gin-gonic/gin v1.10.0
 	github.com/oschwald/geoip2-golang v1.11.0
 	github.com/prometheus/client_golang v1.20.5
