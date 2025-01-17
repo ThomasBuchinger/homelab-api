@@ -2,7 +2,7 @@ module github.com/thomasbuchinger/homelab-api
 
 go 1.23.0
 
-toolchain go1.23.4
+toolchain go1.23.5
 
 require (
 	github.com/gin-contrib/requestid v1.0.4
