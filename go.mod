@@ -10,7 +10,7 @@ require (
 	github.com/gin-gonic/contrib v0.0.0-20240508051311-c1c6bf0061b0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/oschwald/geoip2-golang v1.11.0
-	github.com/prometheus/client_golang v1.21.0
+	github.com/prometheus/client_golang v1.21.1
 	github.com/spf13/viper v1.19.0
 	go.uber.org/zap v1.27.0
 	k8s.io/apimachinery v0.32.2
