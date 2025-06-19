@@ -2,7 +2,7 @@
   "packages": [
     "nodejs@10.24.1",
     "go@1.24.3",
-    "delve@1.24.2"
+    "delve@1.25.0"
   ],
   "env": {
     "CGO_ENABLED": "0"
