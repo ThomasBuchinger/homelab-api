@@ -66,7 +66,6 @@ func handleDebug(c *gin.Context) {
 		return
 	}
 	c.String(http.StatusOK, data)
-	return
 }
 
 func readFile() string {

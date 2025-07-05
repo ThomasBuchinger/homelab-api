@@ -158,7 +158,7 @@ func scrapeTarget(url string, user string, pass string) (string, common.Reconcil
 		return "", common.ReconcilerStatusDown, err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return "", common.ReconcilerStatusError, fmt.Errorf(resp.Status)
+		return "", common.ReconcilerStatusError, fmt.Errorf("%s", resp.Status)
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -173,7 +173,7 @@ func (r *MetricsReconciler) Reconcile() (bool, int) {
 	var err error = nil
 	var scrapeResult string = ""
 	var status common.ReconcilerStatus
-	for key, _ := range r.Metrics {
+	for key := range r.Metrics {
 		r.ResetMetric(key)
 	}
 

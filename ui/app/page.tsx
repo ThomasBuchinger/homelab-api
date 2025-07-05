@@ -6,7 +6,6 @@ import QuickinkButton from './ui/elements/QuickLinkButton'
 import KubernetesHealth from './ui/elements/KubernetesHealth'
 import NasHealth from './ui/elements/NasHealth'
 import TvHealth from './ui/elements/TvHealth'
-import ServerSummary from './ui/elements/ServerSummary'
 
 export default function Home() {
   return (

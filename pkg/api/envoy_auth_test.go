@@ -103,7 +103,7 @@ func Test_AuthByGeoip_should_approve_AT_ips(t *testing.T) {
 
 	res := matcher.MatchIpToAllowedContries("91.115.30.180", vhost)
 	if !res.Passed {
-		t.Fatalf("Should allow IPs from AT: " + strings.Join(res.Messages, " "))
+		t.Fatalf("Should allow IPs from AT: %s", strings.Join(res.Messages, " "))
 	}
 }
 func Test_AuthByGeoip_should_deny_empty_string(t *testing.T) {

@@ -85,16 +85,16 @@ func handleComponentNasv3(c *gin.Context) {
 	})
 }
 
-func handleComponentBastion(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"status":                "OK",
-		"reason":                "Success",
-		"url":                   "http://10.0.0.22:9090",
-		"service_dnf_automatic": "active",
-		"last_update":           "20240822T06:00:00Z",
-		"service_wireguard":     "active",
-	})
-}
+// func handleComponentBastion(c *gin.Context) {
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"status":                "OK",
+// 		"reason":                "Success",
+// 		"url":                   "http://10.0.0.22:9090",
+// 		"service_dnf_automatic": "active",
+// 		"last_update":           "20240822T06:00:00Z",
+// 		"service_wireguard":     "active",
+// 	})
+// }
 
 func handleComponentSyncthing(c *gin.Context) {
 	syncthing := reconciler.SyncthingMetric
