@@ -52,8 +52,7 @@ var (
 
 func setupUnraidApi(r *gin.Engine) *gin.Engine {
 
-	r.Use(func(ctx *gin.Context) { updateMetrics() })
-	r.GET("unraid/metrics", gin.WrapH(promhttp.Handler()))
+	r.GET("unraid/metrics", func(ctx *gin.Context) { updateMetrics() }, gin.WrapH(promhttp.Handler()))
 	r.GET("unraid/mdstat", handleDebug)
 
 	return r
