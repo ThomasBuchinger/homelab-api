@@ -76,7 +76,7 @@ func SetupViperConfig() {
 	viper.SetDefault("homelab.syncthing.authUser", "")
 	viper.SetDefault("homelab.syncthing.authPass", "")
 	viper.SetDefault("envoyAuthConfig.allowedCountries", "AT,CH,DE,IT,HR")
-	viper.SetDefault("homelab.unraid.mdstat", "cmd/unraid-api/testdata.txt")
+	viper.SetDefault("homelab.unraid.mdstat", "/host/mdstat")
 
 	viper.BindEnv("bindAddr", "BIND_ADDR")
 	viper.BindEnv("mode", "MODE")
