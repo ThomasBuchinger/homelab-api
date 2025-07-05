@@ -91,6 +91,10 @@ func parseMdStatFile(data string) UnraidMetrics {
 	}
 
 	for _, line := range strings.Split(data, "\n") {
+		if len(strings.TrimSpace(line)) == 0 {
+			continue
+		}
+
 		line_arr := strings.Split(line, "=")
 		key, value := line_arr[0], line_arr[1]
 		disk_num, disk := getDisk(key)
