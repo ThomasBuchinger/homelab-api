@@ -86,6 +86,7 @@ func SetupViperConfig() {
 	viper.BindEnv("homelab.syncthing.metricsUrl", "SYNCTHING_METRICSURL")
 	viper.BindEnv("homelab.syncthing.authUser", "SYNCTHING_USER")
 	viper.BindEnv("homelab.syncthing.authPass", "SYNCTHING_PASSWORD", "SYNCTHING_PASS")
+	viper.BindEnv("homelab.unraid.mdstat", "UNRAID_MDSTAT")
 
 	viper.SetConfigFile("./config/local.yaml")
 	viper.SetConfigType("yaml")
