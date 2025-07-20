@@ -107,7 +107,7 @@ func parseMdStatFile(data string) UnraidMetrics {
 			metrics.mdState = value
 		}
 		if key == "mdResyncAction" {
-			metrics.mdState = value
+			metrics.mdResyncAction = value
 		}
 		if key == "sbState" {
 			metrics.sbState, err = strconv.ParseInt(value, 0, 0)
