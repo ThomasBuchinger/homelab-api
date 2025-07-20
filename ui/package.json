@@ -16,9 +16,9 @@
     "@mui/lab": "^5.0.0-alpha.176",
     "@mui/material": "^7.0.0",
     "axios": "^1.10.0",
-    "next": "14.2.30",
-    "react": "^18",
-    "react-dom": "^18",
+    "next": "^15.4.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-toastify": "^11.0.0",
     "swr": "^2.3.4"
   },
@@ -26,12 +26,12 @@
     "@babel/preset-typescript": "^7.27.1",
     "@jest/globals": "^30.0.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^20.19.4",
-    "@types/react": "^18.3.23",
-    "@types/react-dom": "^18.3.7",
+    "@types/node": "22.16.5",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "^19.0.0",
     "eslint": "^9.30.1",
     "jest": "^30.0.0",
     "ts-jest": "^29.4.0",
-    "typescript": "^5.8.3"
+    "typescript": "5.8.3"
   }
 }
