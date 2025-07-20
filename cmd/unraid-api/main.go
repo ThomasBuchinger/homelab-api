@@ -22,32 +22,35 @@ type UnraidDiskMetrics struct {
 }
 
 type UnraidMetrics struct {
-	ArrayStarted bool
-	ArrayStatus  string
+	ok                           bool
+	sbState, sbSynced, sbSynced2 int64
+	sbSyncErrs, sbSyncExit       int64
 
-	ParityOK          bool
-	ParityStatus      int64
-	ParityErrors      int64
-	ParityExitCode    int64
-	ParityCorrections int64
-	ParityLastRun     int64
+	mdState, mdResyncAction                                                   string
+	mdResyncSize, mdResyncCorr, mdResync, mdResyncPos, mdResyncDt, mdResyncDb int64
 
 	Disks map[string]UnraidDiskMetrics
 }
 
 var (
-	unraidArrayUp           = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_array_up", Help: "Unraid Array ist started"})
-	unraidArrayStatus       = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_array_status", Help: "Unraid Array Status string"}, []string{"status"})
-	unraidParityOk          = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_parity_ok", Help: "Was the last Parity Check without errors"})
-	unraidParityStatus      = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_pariy_status_code", Help: "Numeric Status code of the Parity check"})
-	unraidParityErrors      = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_parity_errors", Help: "Number of Parity Errors"})
-	unraidParityExitCode    = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_parity_exit_code", Help: "Numeric Exit Code of the Parity Check"})
-	unraidParityCorrections = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_parity_corrections", Help: "Number of corrections found in the last Parity Check"})
-	unraidParityLastRun     = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_parity_last_run", Help: "Timestamp of the Last Parity Check"})
-	unraidDiskSize          = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_disk_size", Help: "Disk Size"}, []string{"name", "id", "partition"})
-	unraidDiskReads         = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_disk_reads", Help: "Disk Reads"}, []string{"name", "id", "partition"})
-	unraidDiskWrites        = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_disk_writes", Help: "Disk Writes"}, []string{"name", "id", "partition"})
-	unraidDiskErrors        = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_disk_errors", Help: "Disk Errors"}, []string{"name", "id", "partition"})
+	unraidArrayUp     = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_array_up", Help: "Unraid Array ist started"})
+	unraidArrayStatus = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_array_status", Help: "Unraid Array Status string"}, []string{"status"})
+
+	unraidParityRuning  = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_parity_running", Help: "Parity Check running?"})
+	unraidParityLastRun = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_parity_last_run", Help: "EXPERIMENTAL: Timestamp of the Last Parity Check"})
+	unraidParityMode    = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_parity_mode", Help: "EXPERIMENTAL: Parity Check mode: check/write-corrections?"}, []string{"mode"})
+	unraidParityErrors  = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_parity_errors", Help: "EXPERIMENTAL: Parity Errors"})
+
+	unraidReadRunning = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_read_running", Help: "EXPERIMENTAL: ReadCheck running?"})
+	unraidReadLastRun = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_read_last_run", Help: "EXPERIMENTAL: Timestamp of the Last ReadCheck"})
+	unraidReadErrors  = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_read_errors", Help: "EXPERIMENTAL: ReadCheck Errors (do not use, there is conflicting information if my calculations are correct)"})
+	unraidReadExit    = prometheus.NewGauge(prometheus.GaugeOpts{Name: "unraid_read_exit", Help: "EXPERIMENTAL: ReadCheck Exit Code (0 Success (with no errors?), -4 Aorted)"})
+
+	unraidDiskSize   = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_disk_size", Help: "Disk Size"}, []string{"name", "id", "partition"})
+	unraidDiskReads  = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_disk_reads", Help: "Disk Reads"}, []string{"name", "id", "partition"})
+	unraidDiskWrites = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_disk_writes", Help: "Disk Writes"}, []string{"name", "id", "partition"})
+
+	unraidDiskErrors = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "unraid_disk_errors", Help: "Disk Errors"}, []string{"name", "id", "partition"})
 )
 
 func setupUnraidApi(r *gin.Engine) *gin.Engine {
@@ -77,7 +80,7 @@ func readFile() string {
 }
 
 func parseMdStatFile(data string) UnraidMetrics {
-	metrics := UnraidMetrics{Disks: map[string]UnraidDiskMetrics{}}
+	metrics := UnraidMetrics{ok: true, Disks: map[string]UnraidDiskMetrics{}}
 	getDisk := func(key string) (string, UnraidDiskMetrics) {
 		key_arr := strings.Split(key, ".")
 		if len(key_arr) == 1 {
@@ -101,25 +104,56 @@ func parseMdStatFile(data string) UnraidMetrics {
 		var err error = nil
 
 		if key == "mdState" {
-			metrics.ArrayStatus = value
-			metrics.ArrayStarted = value == "STARTED"
+			metrics.mdState = value
+		}
+		if key == "mdResyncAction" {
+			metrics.mdState = value
 		}
 		if key == "sbState" {
-			metrics.ParityStatus, err = strconv.ParseInt(value, 0, 0)
-			metrics.ParityOK = err == nil && metrics.ParityStatus == 1
+			metrics.sbState, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
 		}
-		if key == "sbSyncErrs" {
-			metrics.ParityErrors, _ = strconv.ParseInt(value, 0, 0)
-		}
-		if key == "sbSyncExit" {
-			metrics.ParityExitCode, _ = strconv.ParseInt(value, 0, 0)
+		if key == "sbSynced" {
+			metrics.sbSynced, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
 		}
 		if key == "sbSynced2" {
-			metrics.ParityLastRun, _ = strconv.ParseInt(value, 0, 0)
+			metrics.sbSynced2, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
+		}
+		if key == "sbSyncErrs" {
+			metrics.sbSyncErrs, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
+		}
+		if key == "sbSyncExit" {
+			metrics.sbSyncExit, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
+		}
+		if key == "mdResyncSize" {
+			metrics.mdResyncSize, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
 		}
 		if key == "mdResyncCorr" {
-			metrics.ParityCorrections, _ = strconv.ParseInt(value, 0, 0)
+			metrics.mdResyncCorr, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
 		}
+		if key == "mdResync" {
+			metrics.mdResync, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
+		}
+		if key == "mdResyncPos" {
+			metrics.mdResyncPos, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
+		}
+		if key == "mdResyncDt" {
+			metrics.mdResyncDt, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
+		}
+		if key == "mdResyncDb" {
+			metrics.mdResyncDb, err = strconv.ParseInt(value, 0, 0)
+			metrics.ok = metrics.ok && err == nil
+		}
+
 		if strings.HasPrefix(key, "rdevId") {
 			disk.ID = value
 			metrics.Disks[disk_num] = disk
@@ -159,23 +193,41 @@ func parseMdStatFile(data string) UnraidMetrics {
 func updateMetrics() {
 	metrics := parseMdStatFile(readFile())
 
-	if metrics.ArrayStarted {
-		unraidArrayUp.Set(1)
-	} else {
-		unraidArrayUp.Set(0)
-	}
-	unraidArrayStatus.WithLabelValues(metrics.ArrayStatus).Set(1)
+	// Reset all metrics to default
+	unraidArrayUp.Set(0)
+	unraidArrayStatus.WithLabelValues("STARTED").Set(0)
+	unraidArrayStatus.WithLabelValues("CHECKING").Set(0)
+	unraidArrayStatus.WithLabelValues("RESYNC").Set(0)
+	unraidArrayStatus.WithLabelValues("STOPPED").Set(0)
 
-	if metrics.ParityOK {
-		unraidParityOk.Set(1)
-	} else {
-		unraidParityOk.Set(0)
+	unraidParityRuning.Set(0)
+	unraidParityLastRun.Set(0)
+	unraidParityMode.WithLabelValues("check").Set(0)
+	unraidParityErrors.Set(0)
+
+	unraidReadRunning.Set(0)
+	unraidReadLastRun.Set(0)
+	unraidReadErrors.Set(0)
+
+	// Set Metrics
+	if metrics.mdState == "STARTED" {
+		unraidArrayUp.Set(1)
 	}
-	unraidParityStatus.Set(float64(metrics.ParityStatus))
-	unraidParityCorrections.Set(float64(metrics.ParityCorrections))
-	unraidParityErrors.Set(float64(metrics.ParityErrors))
-	unraidParityExitCode.Set(float64(metrics.ParityExitCode))
-	unraidParityLastRun.Set(float64(metrics.ParityLastRun))
+	unraidArrayStatus.WithLabelValues(metrics.mdState).Set(1)
+
+	if metrics.mdResyncPos != 0 {
+		unraidParityRuning.Set(1)
+	}
+	unraidParityLastRun.Set(float64(metrics.sbSynced))
+	unraidParityMode.WithLabelValues(metrics.mdResyncAction).Set(1)
+	unraidParityErrors.Set(float64(metrics.mdResyncCorr))
+
+	if metrics.sbSynced2 == 0 {
+		unraidReadRunning.Set(1)
+	}
+	unraidReadLastRun.Set(float64(metrics.sbSynced2))
+	unraidReadErrors.Set(float64(metrics.sbSyncErrs))
+	unraidReadExit.Set(float64(metrics.sbSyncExit))
 
 	for _, disk := range metrics.Disks {
 		unraidDiskSize.WithLabelValues(disk.Name, disk.ID, disk.Partition).Set(float64(disk.Size))
@@ -192,7 +244,7 @@ func main() {
 	router := api.SetupDefaultRouter()
 	router = setupUnraidApi(router)
 
-	prometheus.MustRegister(unraidArrayUp, unraidArrayStatus, unraidDiskErrors, unraidDiskReads, unraidDiskSize, unraidDiskWrites, unraidParityCorrections, unraidParityErrors, unraidParityExitCode, unraidParityLastRun, unraidParityOk, unraidParityStatus)
+	prometheus.MustRegister(unraidArrayStatus, unraidArrayUp, unraidDiskErrors, unraidDiskReads, unraidDiskSize, unraidDiskWrites, unraidParityErrors, unraidParityLastRun, unraidParityMode, unraidParityRuning, unraidReadErrors, unraidReadExit, unraidReadLastRun, unraidReadRunning)
 
 	router.Run(common.GetEnvWithDefault("BIND_ADDR", serverConfig.BindAddr))
 }
