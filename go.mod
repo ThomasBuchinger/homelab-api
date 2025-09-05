@@ -10,7 +10,7 @@ require (
 	github.com/gin-gonic/contrib v0.0.0-20250521004450-2b1292699c15
 	github.com/gin-gonic/gin v1.10.1
 	github.com/oschwald/geoip2-golang v1.13.0
-	github.com/prometheus/client_golang v1.23.1
+	github.com/prometheus/client_golang v1.23.2
 	github.com/spf13/viper v1.20.1
 	go.uber.org/zap v1.27.0
 	k8s.io/apimachinery v0.34.0
@@ -63,7 +63,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.66.0 // indirect
+	github.com/prometheus/common v0.66.1 // indirect
 	github.com/prometheus/procfs v0.17.0 // indirect
 	github.com/sagikazarmark/locafero v0.9.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
