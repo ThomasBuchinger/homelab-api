@@ -1,6 +1,6 @@
 {
   "packages": [
-    "nodejs@24.5.0",
+    "nodejs@24.8.0",
     "go@1.25.0",
     "delve@1.25.1"
   ],
