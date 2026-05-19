@@ -76,7 +76,7 @@ func scrape_zib2(c *gin.Context) {
 
 	resp, err := http.Get(targetURL)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch page"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch page", "message": err.Error()})
 		return
 	}
 	defer resp.Body.Close()
