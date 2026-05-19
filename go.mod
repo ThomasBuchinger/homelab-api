@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.12.0
-	github.com/gin-contrib/requestid v1.0.5
+	github.com/gin-contrib/requestid v1.0.6
 	github.com/gin-contrib/zap v1.1.7
 	github.com/gin-gonic/contrib v0.0.0-20260101091603-d12f07a9136b
 	github.com/gin-gonic/gin v1.12.0
