@@ -1,4 +1,5 @@
 FROM cgr.dev/chainguard/node:latest AS ui
+USER root
 
 ADD ./ui/package.json ./ui/package-lock.json ./
 RUN npm ci
