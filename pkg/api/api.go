@@ -2,8 +2,10 @@ package api
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-contrib/requestid"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/contrib/static"
@@ -43,6 +45,7 @@ func setupCommonApiEndpoints(r *gin.Engine) *gin.Engine {
 
 	// Publicly accessible API endpoints
 	r.GET("/api/public/ping", handlePing)
+	r.GET("/api/zib2", scrape_zib2)
 
 	return r
 }
@@ -60,6 +63,48 @@ func SetupDummyApiEndpointsForRunningInPublicMode(r *gin.Engine) *gin.Engine {
 
 func handlePing(c *gin.Context) {
 	c.String(http.StatusOK, "pong")
+}
+
+type ZibEpisode struct {
+	Link  string `json:"link"`
+	Title string `json:"title"`
+}
+
+func scrape_zib2(c *gin.Context) {
+	targetURL := "https://on.orf.at/sendereihe/1211/zib-2"
+	videos := []ZibEpisode{}
+
+	resp, err := http.Get(targetURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch page"})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		c.JSON(resp.StatusCode, gin.H{"error": "HTTP error: " + resp.Status})
+		return
+	}
+
+	html, _ := goquery.NewDocumentFromReader(resp.Body)
+	html.Find(".video-list a").Each(func(i int, s *goquery.Selection) {
+		href, _ := s.Attr("href")
+		title := s.Find("h2.title").Text()
+
+		// ORF returns relative URLs (/video/...). Convert them to absolute.
+		if !strings.HasPrefix(href, "http") {
+			href = "https://on.orf.at" + href
+		}
+
+		videos = append(videos, ZibEpisode{
+			Link:  href,
+			Title: strings.TrimSpace(title),
+		})
+	})
+
+	c.JSON(http.StatusOK, gin.H{
+		"videos": videos,
+	})
 }
 
 // Authorized group (uses gin.BasicAuth() middleware)
