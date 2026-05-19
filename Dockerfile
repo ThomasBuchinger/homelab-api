@@ -30,7 +30,7 @@ RUN go build ./cmd/copy-geoip-for-envoy
 RUN go build ./cmd/unraid-api
 RUN go test ./...
 
-FROM scratch AS app
+FROM gcr.io/distroless/static-debian13 AS app
 ENV MODE=dev
 
 WORKDIR /app
