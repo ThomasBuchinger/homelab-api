@@ -38,7 +38,9 @@ type ConfigFileContent struct {
 			ConsoleUrl          string
 		}
 		Nas struct {
-			MetricsUrl string
+			NodeExporter     string
+			UnraidExporter   string
+			smartctlExporter string
 		}
 		Syncthing struct {
 			MetricsUrl         string
@@ -66,7 +68,9 @@ func SetupViperConfig() {
 	viper.SetDefault("homelab.evergreen.kubeStateMetricsUrl", "http://kube-state-metrics.10.0.0.16.nip.io/metrics")
 	viper.SetDefault("homelab.prod.consoleUrl", "http://prod-console.10.0.0.21.nip.io")
 	viper.SetDefault("homelab.prod.kubeStateMetricsUrl", "http://kube-state-metrics.10.0.0.21.nip.io/metrics")
-	viper.SetDefault("homelab.nas.metricsUrl", "http://10.0.0.19:9100/metrics")
+	viper.SetDefault("homelab.nas.nodeExporter", "http://10.0.0.19:9100/metrics")
+	viper.SetDefault("homelab.nas.unraidExporter", "http://10.0.0.19:9101/unraid/metrics")
+	viper.SetDefault("homelab.nas.smartctlExporter", "http://10.0.0.19:9101/unraid/metrics")
 	viper.SetDefault("homelab.paperless.metricsUrl", "http://paperless.10.0.0.21.nip.io/metrics")
 	viper.SetDefault("homelab.paperless.newDocTag", "28")
 	viper.SetDefault("homelab.syncthing.metricsUrl", "http://syncthing.10.0.0.21.nip.io/metrics")

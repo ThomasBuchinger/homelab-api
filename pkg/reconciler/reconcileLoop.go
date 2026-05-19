@@ -12,6 +12,7 @@ var ProdMetric *metricscraper.MetricsReconciler
 var EvergreenMetric *metricscraper.MetricsReconciler
 var SyncthingMetric *metricscraper.MetricsReconciler
 var NasNodeMetrics *metricscraper.MetricsReconciler
+var NasUnraidMetrics *metricscraper.MetricsReconciler
 var PaperlessMetrics *metricscraper.MetricsReconciler
 
 func ReconcileLoop() {
@@ -39,7 +40,7 @@ func ReconcileLoop() {
 	SyncthingMetric.AddMetric("folder_state", metricscraper.Metric{Name: "syncthing_model_folder_state", GroupBy: "folder"})
 	SyncthingMetric.AddMetric("device_connections", metricscraper.Metric{Name: "syncthing_connections_active", GroupBy: "device"})
 
-	NasNodeMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Nas.MetricsUrl)
+	NasNodeMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Nas.NodeExporter)
 	NasNodeMetrics.AddMetric("btrfs_errors", metricscraper.Metric{Name: "node_btrfs_device_errors_total", GroupBy: "device"})
 	NasNodeMetrics.AddMetric("btrfs_total", metricscraper.Metric{Name: "node_btrfs_device_size_bytes", GroupBy: "device"})
 	NasNodeMetrics.AddMetric("btrfs_unused", metricscraper.Metric{Name: "node_btrfs_device_unused_bytes", GroupBy: "device"})

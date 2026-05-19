@@ -35,6 +35,7 @@ func SetupBffApiEndpoints(r *gin.Engine) *gin.Engine {
 	r.GET("/api/public/bff/syncthing", handleComponentSyncthing)
 	r.GET("/api/public/bff/kubernetes", handleComponentCombinedKubernetes)
 	r.GET("/api/public/bff/nasv3", handleComponentNasv3)
+	r.GET("/api/public/bff/jellyfin", handleComponentJellyfin)
 
 	if syncthingReatartable() {
 		r.DELETE("/api/private/bff/syncthing/restart", handleCommandRestartSyncthing)
@@ -82,6 +83,28 @@ func handleComponentNasv3(c *gin.Context) {
 		"disk_total":       m.Metrics["fs_total"].Value,
 		"disk_free":        m.Metrics["fs_free"].Value,
 		"disks":            disks,
+	})
+}
+
+func handleComponentJellyfin(c *gin.Context) {
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":                     common.ReconcilerStatusNew,
+		"reason":                     "OK",
+		"jellyfin_url":               "http://10.0.0.19:8096",
+		"jellyfin_watching":          "1",
+		"jellyfin_movies":            "100",
+		"jellyfin_shows":             "100",
+		"jellyseer_url":              "https://requests.tv.buc.sh",
+		"movies_downloaded":          "1023",
+		"movies_total":               "123",
+		"movies_url":                 "https://movies.tv.bus.sh",
+		"shows_downloaded":           "100",
+		"shows_total":                "100",
+		"shows_url":                  "https://shows.tv.buc.sh",
+		"downloads_running":          "1",
+		"downloads_estimated_finish": "3600",
+		"downloads_url":              "https://downloads.tv.buc.sh",
 	})
 }
 
