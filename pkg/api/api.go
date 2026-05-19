@@ -66,13 +66,13 @@ func handlePing(c *gin.Context) {
 }
 
 type ZibEpisode struct {
-	Link  string `json:"link"`
+	Url   string `json:"url"`
 	Title string `json:"title"`
 }
 
 func scrape_zib2(c *gin.Context) {
 	targetURL := "https://on.orf.at/sendereihe/1211/zib-2"
-	videos := []ZibEpisode{}
+	episodes := []ZibEpisode{}
 
 	resp, err := http.Get(targetURL)
 	if err != nil {
@@ -96,14 +96,14 @@ func scrape_zib2(c *gin.Context) {
 			href = "https://on.orf.at" + href
 		}
 
-		videos = append(videos, ZibEpisode{
-			Link:  href,
+		episodes = append(episodes, ZibEpisode{
+			Url:   href,
 			Title: strings.TrimSpace(title),
 		})
 	})
 
 	c.JSON(http.StatusOK, gin.H{
-		"videos": videos,
+		"episodes": episodes,
 	})
 }
 
