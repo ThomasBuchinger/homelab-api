@@ -1,10 +1,10 @@
 module github.com/thomasbuchinger/homelab-api
 
-go 1.26.0
+go 1.26.10
 
 require (
 	github.com/PuerkitoBio/goquery v1.13.0
-	github.com/gin-contrib/requestid v1.0.8
+	github.com/gin-contrib/requestid v1.0.9
 	github.com/gin-contrib/zap v1.1.9
 	github.com/gin-gonic/contrib v0.0.0-20260101091603-d12f07a9136b
 	github.com/gin-gonic/gin v1.12.0
@@ -85,7 +85,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/arch v0.29.0 // indirect
 	golang.org/x/crypto v0.57.0 // indirect
-	golang.org/x/net v0.59.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/term v0.46.0 // indirect
