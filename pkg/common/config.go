@@ -40,7 +40,7 @@ type ConfigFileContent struct {
 		Nas struct {
 			NodeExporter     string
 			UnraidExporter   string
-			smartctlExporter string
+			SmartctlExporter string
 		}
 		Syncthing struct {
 			MetricsUrl         string
@@ -53,6 +53,15 @@ type ConfigFileContent struct {
 		Paperless struct {
 			MetricsUrl string
 			NewDocTag  string
+		}
+		Frigate struct {
+			MetricsUrl string
+		}
+		Iotrouter struct {
+			MetricsUrl string
+		}
+		Homeassistant struct {
+			MetricsUrl string
 		}
 	}
 	EnvoyAuthConfig struct {
@@ -70,7 +79,7 @@ func SetupViperConfig() {
 	viper.SetDefault("homelab.prod.kubeStateMetricsUrl", "http://kube-state-metrics.10.0.0.21.nip.io/metrics")
 	viper.SetDefault("homelab.nas.nodeExporter", "http://10.0.0.19:9100/metrics")
 	viper.SetDefault("homelab.nas.unraidExporter", "http://10.0.0.19:9101/unraid/metrics")
-	viper.SetDefault("homelab.nas.smartctlExporter", "http://10.0.0.19:9101/unraid/metrics")
+	viper.SetDefault("homelab.nas.smartctlExporter", "http://10.0.0.19:9633/metrics")
 	viper.SetDefault("homelab.paperless.metricsUrl", "http://paperless.10.0.0.21.nip.io/metrics")
 	viper.SetDefault("homelab.paperless.newDocTag", "28")
 	viper.SetDefault("homelab.syncthing.metricsUrl", "http://syncthing.10.0.0.21.nip.io/metrics")
@@ -79,6 +88,9 @@ func SetupViperConfig() {
 	viper.SetDefault("homelab.syncthing.mockRestart", "")
 	viper.SetDefault("homelab.syncthing.authUser", "")
 	viper.SetDefault("homelab.syncthing.authPass", "")
+	viper.SetDefault("homelab.frigate.metricsUrl", "http://10.0.0.25:8971/api/metrics")
+	viper.SetDefault("homelab.iotrouter.metricsUrl", "http://10.0.0.9:9101/metrics")
+	viper.SetDefault("homelab.homeassistant.metricsUrl", "http://10.0.0.24:8123/api/prometheus")
 	viper.SetDefault("envoyAuthConfig.allowedCountries", "AT,CH,DE,IT,HR")
 	viper.SetDefault("homelab.unraid.mdstat", "/host/mdstat")
 

@@ -12,8 +12,11 @@ var ProdMetric *metricscraper.MetricsReconciler
 var EvergreenMetric *metricscraper.MetricsReconciler
 var SyncthingMetric *metricscraper.MetricsReconciler
 var NasNodeMetrics *metricscraper.MetricsReconciler
-var NasUnraidMetrics *metricscraper.MetricsReconciler
+var NasSmartMetrics *metricscraper.MetricsReconciler
 var PaperlessMetrics *metricscraper.MetricsReconciler
+var FrigateMetrics *metricscraper.MetricsReconciler
+var OpenwrtMetrics *metricscraper.MetricsReconciler
+var HomeassistantMetrics *metricscraper.MetricsReconciler
 
 func ReconcileLoop() {
 	sleeptime, _ := time.ParseDuration("5m")
@@ -47,10 +50,41 @@ func ReconcileLoop() {
 	NasNodeMetrics.AddMetric("fs_free", metricscraper.Metric{Name: "node_filesystem_avail_bytes", Labels: map[string]string{"mountpoint": "/mnt/user"}})
 	NasNodeMetrics.AddMetric("fs_total", metricscraper.Metric{Name: "node_filesystem_size_bytes", Labels: map[string]string{"mountpoint": "/mnt/user"}})
 
+	NasSmartMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Nas.SmartctlExporter)
+
 	PaperlessMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Paperless.MetricsUrl)
 	PaperlessMetrics.AddMetric("tag_name", metricscraper.Metric{Name: "paperless_tag_info", Labels: map[string]string{"id": conf.Homelab.Paperless.NewDocTag}, GroupBy: "name"})
 	PaperlessMetrics.AddMetric("docs_new", metricscraper.Metric{Name: "paperless_tag_document_count", Labels: map[string]string{"id": conf.Homelab.Paperless.NewDocTag}})
 	PaperlessMetrics.AddMetric("docs_total", metricscraper.Metric{Name: "paperless_document_type_document_count"})
+
+	FrigateMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Frigate.MetricsUrl)
+	FrigateMetrics.AddMetric("camera_fps", metricscraper.Metric{Name: "frigate_camera_fps", GroupBy: "camera_name"})
+	FrigateMetrics.AddMetric("service_info", metricscraper.Metric{Name: "frigate_service_info"})
+	FrigateMetrics.AddMetric("uptime", metricscraper.Metric{Name: "frigate_service_uptime_seconds"})
+	FrigateMetrics.AddMetric("storage_free", metricscraper.Metric{Name: "frigate_storage_free_bytes", Labels: map[string]string{"storage": "/media/frigate/recordings"}})
+	FrigateMetrics.AddMetric("storage_total", metricscraper.Metric{Name: "frigate_storage_total_bytes", Labels: map[string]string{"storage": "/media/frigate/recordings"}})
+	FrigateMetrics.AddMetric("storage_used", metricscraper.Metric{Name: "frigate_storage_used_bytes", Labels: map[string]string{"storage": "/media/frigate/recordings"}})
+	FrigateMetrics.AddMetric("events_person", metricscraper.Metric{Name: "frigate_camera_events_total", Labels: map[string]string{"label": "person"}, GroupBy: "camera"})
+
+	OpenwrtMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Iotrouter.MetricsUrl)
+	OpenwrtMetrics.AddMetric("uptime", metricscraper.Metric{Name: "node_boot_time_seconds"})
+	OpenwrtMetrics.AddMetric("dhcp_leases_active", metricscraper.Metric{Name: "dnsmasq_leases_allocated_4_total"})
+	OpenwrtMetrics.AddMetric("accesspoint_up", metricscraper.Metric{Name: "node_network_carrier", Labels: map[string]string{"device": "phy0-ap0"}})
+	OpenwrtMetrics.AddMetric("network_info_iot", metricscraper.Metric{Name: "node_network_info", Labels: map[string]string{"device": "br-iot"}})
+	OpenwrtMetrics.AddMetric("network_info_lan", metricscraper.Metric{Name: "node_network_info", Labels: map[string]string{"device": "br-lan"}})
+	OpenwrtMetrics.AddMetric("network_info_docker", metricscraper.Metric{Name: "node_network_info", Labels: map[string]string{"device": "docker0"}})
+	OpenwrtMetrics.AddMetric("network_info_eth0", metricscraper.Metric{Name: "node_network_info", Labels: map[string]string{"device": "eth0"}})
+	OpenwrtMetrics.AddMetric("network_info_eth1", metricscraper.Metric{Name: "node_network_info", Labels: map[string]string{"device": "eth1"}})
+	OpenwrtMetrics.AddMetric("network_info_ap", metricscraper.Metric{Name: "node_network_info", Labels: map[string]string{"device": "phy0-ap0"}})
+	OpenwrtMetrics.AddMetric("wifi_info", metricscraper.Metric{Name: "wifi_radio_info"})
+	OpenwrtMetrics.AddMetric("wifi_network", metricscraper.Metric{Name: "wifi_network_info"})
+	OpenwrtMetrics.AddMetric("wifi_stations_active", metricscraper.Metric{Name: "wifi_stations_total"})
+	OpenwrtMetrics.AddMetric("wifi_stations_inactive", metricscraper.Metric{Name: "wifi_station_inactive_milliseconds", GroupBy: "mac"})
+	OpenwrtMetrics.AddMetric("wifi_stations_signal", metricscraper.Metric{Name: "wifi_station_signal_dbm", GroupBy: "mac"})
+
+	HomeassistantMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Homeassistant.MetricsUrl)
+	// HomeassistantMetrics.AddMetric("uptime", metricscraper.Metric{Name: "node_boot_time_seconds"})
+	HomeassistantMetrics.AddMetric("entity_available", metricscraper.Metric{Name: "homeassistant_entity_available", GroupBy: "entity"})
 
 	for {
 		conf.RootLogger.Logln(zap.DebugLevel, "Running Reconcilers...")
@@ -60,6 +94,10 @@ func ReconcileLoop() {
 		SyncthingMetric.Reconcile()
 		NasNodeMetrics.Reconcile()
 		PaperlessMetrics.Reconcile()
+
+		OpenwrtMetrics.Reconcile()
+		FrigateMetrics.Reconcile()
+		HomeassistantMetrics.Reconcile()
 
 		time.Sleep(sleeptime)
 	}

@@ -43,12 +43,18 @@ kube_pod_status_phase{namespace="traefik",pod="traefik-78599579c7-k4wnr",uid="43
 kube_pod_status_phase{namespace="traefik",pod="traefik-78599579c7-k4wnr",uid="43f933cb-409e-4b50-a7e3-5a85a51637b9",phase="Failed"} 0
 kube_pod_status_phase{namespace="traefik",pod="traefik-78599579c7-k4wnr",uid="43f933cb-409e-4b50-a7e3-5a85a51637b9",phase="Unknown"} 0
 kube_pod_status_phase{namespace="traefik",pod="traefik-78599579c7-k4wnr",uid="43f933cb-409e-4b50-a7e3-5a85a51637b9",phase="Running"} 1
+
+# Metrics sharing a substring
+node_network_carrier_up{device="phy0-ap0"} 1
+node_network_carrier_up{device="phy0-ap1"} 1
+node_network_carrier_uptime{device="phy0-ap0"} 1
+node_network_carrier_uptime{device="phy0-ap1"} 1
 `
 
 func Test_MetricsReconciler_is_uninitialied_after_reation(t *testing.T) {
 	mr := metricscraper.NewDummyMetricsReconciler(MOCK_METRICS)
 
-	if mr.GetSatus() != common.ReconcilerStatusNew {
+	if mr.GetStatus() != common.ReconcilerStatusNew {
 		t.Error("Fresh MetricsReconciler should be NEW")
 	}
 }
@@ -58,7 +64,7 @@ func Test_MetricsReconciler_should_be_ok_after_running_reconcile_once(t *testing
 	mr.AddMetric("unittest", metricscraper.Metric{Name: "fake_pods_total"})
 	mr.Reconcile()
 
-	if mr.GetSatus() != common.ReconcilerStatusOK {
+	if mr.GetStatus() != common.ReconcilerStatusOK {
 		t.Error("Reconciler should be ok")
 	}
 	if mr.Metrics["unittest"].Value != 4 {
@@ -119,7 +125,15 @@ func Test_MetricsReconciler_ProcessMetric_GroupBy_works(t *testing.T) {
 	}
 }
 
-// Function: FindMetricLabels
+func Test_MetricsReconciler_ProcessMetric_exact_name_match_ignores_similar_prefixes(t *testing.T) {
+	value_map, _ := metricscraper.ProcessMetric(MOCK_METRICS, metricscraper.Metric{
+		Name:   "node_network_carrier_up",
+		Labels: map[string]string{"device": "phy0-ap0"},
+	})
+	if value_map[metricscraper.MetricRootKey] != 1 {
+		t.Error("Only the exact metric node_network_carrier_up{device=phy0-ap0} should match. Value: ", value_map)
+	}
+}
 
 func Test_MetricsReconciler_FindMetricLabel_should_return_empty_for_no_labels(t *testing.T) {
 	labels := metricscraper.FindMetricLabels("metric 1")

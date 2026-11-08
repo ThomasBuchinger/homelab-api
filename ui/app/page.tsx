@@ -6,6 +6,7 @@ import QuickinkButton from './ui/elements/QuickLinkButton'
 import KubernetesHealth from './ui/elements/KubernetesHealth'
 import NasHealth from './ui/elements/NasHealth'
 import TvHealth from './ui/elements/TvHealth'
+import SmarthomeHealth from './ui/elements/SmartHomeHealth'
 
 export default function Home() {
   return (
@@ -27,6 +28,9 @@ export default function Home() {
       </Grid>
       <Grid>
         <TvHealth />
+      </Grid>
+      <Grid>
+        <SmarthomeHealth />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <Divider variant='fullWidth' className={styles.code} style={{ marginTop: "50px", marginBottom: "50px" }}> Links</Divider>
@@ -69,7 +73,7 @@ export default function Home() {
           <QuickinkButton name="Prometheus" icon_url="/icons/prometheus-icon-color.svg" url="https://grafana.buc.sh" />
         </Grid>
         <Grid>
-          <QuickinkButton name="Minio" icon_url="/icons/minio-logo-old.webp" url="http://10.0.0.19:9001" />
+          <QuickinkButton name="Nas S3" icon_url="/icons/minio-logo-old.webp" url="http://10.0.0.19:9001" />
         </Grid>
         <Grid>
           <QuickinkButton name="PDF" icon_url="/icons/stirling-pdf.png" url="https://pdf.buc.sh" />
@@ -85,9 +89,6 @@ export default function Home() {
         </Grid>
         <Grid>
           <QuickinkButton name="Envoy" icon_url="/icons/envoy-icon-color.png" url="https://envoy.buc.sh" />
-        </Grid>
-        <Grid>
-          <QuickinkButton name="NTFY" icon_url="/icons/ntfy-logo.svg" url="https://push.buc.sh" />
         </Grid>
       </Grid>
     </Grid>

@@ -5,7 +5,9 @@ import (
 	"maps"
 	"net/http"
 	"slices"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/thomasbuchinger/homelab-api/pkg/common"
@@ -36,6 +38,7 @@ func SetupBffApiEndpoints(r *gin.Engine) *gin.Engine {
 	r.GET("/api/public/bff/kubernetes", handleComponentCombinedKubernetes)
 	r.GET("/api/public/bff/nasv3", handleComponentNasv3)
 	r.GET("/api/public/bff/jellyfin", handleComponentJellyfin)
+	r.GET("/api/public/bff/smarthome", handleComponentSmarthome)
 
 	if syncthingReatartable() {
 		r.DELETE("/api/private/bff/syncthing/restart", handleCommandRestartSyncthing)
@@ -47,7 +50,7 @@ func handleComponentPaperless(c *gin.Context) {
 	m := reconciler.PaperlessMetrics
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":          m.GetSatus(),
+		"status":          m.GetStatus(),
 		"reason":          m.GetReason(),
 		"total_documents": m.Metrics["docs_total"].Value,
 		"new_documents":   m.Metrics["docs_new"].Value,
@@ -70,7 +73,7 @@ func handleComponentNasv3(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":           m.GetSatus(),
+		"status":           m.GetStatus(),
 		"reason":           m.GetReason(),
 		"url":              "http://10.0.0.19",
 		"backup_url":       "http://10.0.0.19:9898",
@@ -108,6 +111,45 @@ func handleComponentJellyfin(c *gin.Context) {
 	})
 }
 
+func handleComponentSmarthome(c *gin.Context) {
+	iot := reconciler.OpenwrtMetrics
+	frigate := reconciler.FrigateMetrics
+	ha := reconciler.HomeassistantMetrics
+
+	carportcam_mac := "98:03:8e:59:09:7d"
+	ng7_doorbell_shelly_mac := "30:76:f5:38:18:b4"
+	wifi_rating := func(dbm float64) string {
+		if dbm >= 0 { // invalid / missing entry (0 dBm is not a valid received signal)
+			return "0"
+		}
+		percent := min(max(2*(dbm+100), 0), 100)
+		return strconv.Itoa(int(percent / 20))
+	}
+	frigate_uptime, frigate_started := HumanUptime(frigate.Metrics["uptime"].Value)
+	openwrt_uptime, openwrt_started := HumanUptime(iot.Metrics["uptime"].Value)
+	// ha_uptime, ha_started := HumanUptime(iot.Metrics["uptime"].Value)
+
+	status, reason := common.MergeScrapersStatus(iot, frigate, ha)
+	c.JSON(http.StatusOK, gin.H{
+		"status":                          status,
+		"reason":                          reason,
+		"openwrt_uptime":                  openwrt_uptime,
+		"openwrt_started":                 openwrt_started,
+		"accesspoint_up":                  iot.Metrics["accesspoint_up"].Value,
+		"devices_dhcp_active":             iot.Metrics["dhcp_leases_active"].Value,
+		"devices_wifi_active":             iot.Metrics["wifi_stations_active"].Value,
+		"wifi_signal_carportcam":          wifi_rating(iot.Metrics["wifi_stations_signal"].GroupedValues[carportcam_mac]),
+		"wifi_signal_ng7_doorbell_shelly": wifi_rating(iot.Metrics["wifi_stations_signal"].GroupedValues[ng7_doorbell_shelly_mac]),
+
+		"frigate_camera_fps_carport": frigate.Metrics["camera_fps"].GroupedValues["carport"],
+		"frigate_uptime":             frigate_uptime,
+		"frigate_started":            frigate_started,
+
+		"homeassistant_status_carport_camera":      ha.Metrics["entity_available"].GroupedValues["camera.carport"],
+		"homeassistant_status_doorbell_ng7_shelly": ha.Metrics["entity_available"].GroupedValues["sensor.shelly_doorbell_ng7_schaltkasten_uptime"],
+	})
+}
+
 // func handleComponentBastion(c *gin.Context) {
 // 	c.JSON(http.StatusOK, gin.H{
 // 		"status":                "OK",
@@ -138,7 +180,7 @@ func handleComponentSyncthing(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":      syncthing.GetSatus(),
+		"status":      syncthing.GetStatus(),
 		"reason":      syncthing.GetReason(),
 		"url":         "http://syncthing.buc.sh",
 		"restartable": syncthingReatartable(),
@@ -153,7 +195,7 @@ func handleComponentCombinedKubernetes(c *gin.Context) {
 	prodData := reconciler.ProdMetric.Metrics
 
 	c.JSON(http.StatusOK, gin.H{
-		"status": reconciler.EvergreenMetric.GetSatus(),
+		"status": reconciler.EvergreenMetric.GetStatus(),
 		"reason": reconciler.EvergreenMetric.GetReason(),
 
 		"evergreen_url": conf.Homelab.Evergreen.ConsoleUrl,
@@ -198,4 +240,30 @@ func handleCommandRestartSyncthing(c *gin.Context) {
 
 func syncthingReatartable() bool {
 	return common.EnableFeatureInMode([]string{common.ServerModeDev, common.ServerModeInternal}, true, false)
+}
+
+func HumanUptime(uptimeSecs float64) (readable string, datetime string) {
+	units := []struct {
+		name string
+		secs float64
+	}{
+		{"days", 86400},
+		{"hours", 3600},
+		{"min", 60},
+		{"s", 1},
+	}
+
+	end := time.Now().Add(time.Duration(uptimeSecs * float64(time.Second)))
+
+	whole := int64(uptimeSecs) // truncate fractional seconds
+	readable = fmt.Sprintf("%d s", whole)
+	for _, u := range units {
+		if uptimeSecs >= u.secs {
+			readable = fmt.Sprintf("%d %s", whole/int64(u.secs), u.name)
+			break
+		}
+	}
+
+	datetime = end.Format("2006-01-02, 15:04:05")
+	return readable, datetime
 }

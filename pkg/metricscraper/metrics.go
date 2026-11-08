@@ -59,6 +59,13 @@ func NewDummyMetricsReconciler(content string) *MetricsReconciler {
 
 func ProcessMetric(scrapeResult string, metric Metric) (map[string]float64, bool) {
 	ret_map, key, ok := map[string]float64{}, MetricRootKey, false
+	get_name_without_labels := func(metricName string) string {
+		if strings.Contains(metricName, "{") {
+			index := strings.Index(metricName, "{")
+			return metricName[:index]
+		}
+		return metricName
+	}
 
 	for _, v := range strings.Split(scrapeResult, "\n") {
 		if strings.HasPrefix(v, "#") || strings.TrimSpace(v) == "" || len(strings.Split(v, " ")) != 2 {
@@ -71,7 +78,7 @@ func ProcessMetric(scrapeResult string, metric Metric) (map[string]float64, bool
 		if err != nil {
 			continue
 		}
-		if strings.Contains(name, metric.Name) {
+		if get_name_without_labels(name) == metric.Name {
 			all_checks_passed := true
 			discovered_labels := FindMetricLabels(name)
 			groupKey, groupKeyExists := discovered_labels[metric.GroupBy]
@@ -113,7 +120,7 @@ func FindMetricLabels(metric_line string) map[string]string {
 	return ret
 }
 
-func (r *MetricsReconciler) GetSatus() common.ReconcilerStatus {
+func (r *MetricsReconciler) GetStatus() common.ReconcilerStatus {
 	return r.Status
 }
 func (r *MetricsReconciler) GetReason() string {
