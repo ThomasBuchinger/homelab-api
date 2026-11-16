@@ -3,7 +3,7 @@ module github.com/thomasbuchinger/homelab-api
 go 1.26.10
 
 require (
-	github.com/PuerkitoBio/goquery v1.13.0
+	github.com/PuerkitoBio/goquery v1.14.0
 	github.com/gin-contrib/requestid v1.0.10
 	github.com/gin-contrib/zap v1.1.11
 	github.com/gin-gonic/contrib v0.0.0-20260101091603-d12f07a9136b
@@ -17,7 +17,7 @@ require (
 )
 
 require (
-	github.com/andybalholm/cascadia v1.3.4 // indirect
+	github.com/andybalholm/cascadia v1.3.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.2 // indirect
