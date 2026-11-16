@@ -1,5 +1,5 @@
 "use client"
-import { CancelOutlined, CheckCircleOutlineOutlined, Circle, Height, QuestionMarkOutlined, ReportProblemOutlined } from "@mui/icons-material";
+import { CancelOutlined, CheckCircleOutlineOutlined, Circle, DoorbellOutlined, Height, QuestionMarkOutlined, ReportProblemOutlined, VideocamOutlined } from "@mui/icons-material";
 import { Avatar, CardHeader, Icon, IconButton, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 
@@ -37,10 +37,8 @@ export function ComponentContentValue({label, value}: {label: string, value: str
 
 export function ComponentCamera({ label, wifi_rating, fps, ha_status}: { label: string, wifi_rating: string, fps: string, ha_status: number }) {
   return <Stack justifyContent={"space-between"} direction={"row"}>
-    <span>
-      <img src={"/icons/camera.svg"} height={18} width={24}></img>
-      <Typography component={"span"} variant="overline" align="left" marginLeft={"10px"}>{label}</Typography>
-    </span>
+    <VideocamOutlined />
+    <Typography component={"span"} variant="overline" align="left" marginLeft={"10px"}>{label}</Typography>
     <Typography component={"span"} variant="overline" align="right" marginLeft={"10px"}>
       <Typography component={"span"} variant="overline" align="right" sx={{ verticalAlign: "top" }}>{fps} FPS  </Typography>
       <img src={"/icons/wifi_" + wifi_rating + ".svg"} alt={"strength: " + wifi_rating} width={24} ></img>
@@ -50,7 +48,8 @@ export function ComponentCamera({ label, wifi_rating, fps, ha_status}: { label: 
 }
 export function ComponentDoorbell({ label, wifi_rating, ha_status}: { label: string, wifi_rating: string, ha_status: number}) {
   return <Stack justifyContent={"space-between"} direction={"row"}>
-    <Typography component={"span"} variant="overline" align="left">{label}:</Typography>
+    <DoorbellOutlined />
+    <Typography component={"span"} variant="overline" align="left">{label}</Typography>
     <Typography component={"span"} variant="overline" align="right" marginLeft={"10px"}>
       <img src={"/icons/wifi_" + wifi_rating + ".svg"} alt={"strength: " + wifi_rating} width={24} ></img>
       <ComponentHomeAssistantStatus ha_status={ha_status}/>

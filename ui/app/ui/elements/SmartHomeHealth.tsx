@@ -31,7 +31,7 @@ export default function SmarthomeHealth() {
           <ComponentContentValue label={"Expected Devices"} value={"2"} />
           <ComponentContentValue label={"Devices (Wifi / DHCP)"} value={data.devices_wifi_active + " / " + data.devices_dhcp_active} />
           <ComponentCamera label="Carport" wifi_rating={data.wifi_signal_carportcam} fps={data.frigate_camera_fps_carport} ha_status={data.homeassistant_status_carport_camera} />
-          <ComponentDoorbell label="Doorbell NG7" wifi_rating={data.wifi_signal_ng7_doorbell_shelly} ha_status={data.homeassistant_status_doorbell_ng7_shelly}/>
+          <ComponentDoorbell label="NG7" wifi_rating={data.wifi_signal_ng7_doorbell_shelly} ha_status={data.homeassistant_status_doorbell_ng7_shelly}/>
         </CardContent>
       </CardActionArea>
       <CardActions>
