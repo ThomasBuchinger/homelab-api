@@ -60,11 +60,12 @@ func handleComponentPaperless(c *gin.Context) {
 	})
 }
 func handleComponentNasv3(c *gin.Context) {
-	m := reconciler.NasNodeMetrics
+	node_exporter := reconciler.NasNodeMetrics
+	backrest := reconciler.NasBackrestMetrics
 	disks := []gin.H{}
-	for disk, metric_value := range m.Metrics["btrfs_errors"].GroupedValues {
-		cap_total, total_ok := m.Metrics["btrfs_total"].GroupedValues[disk]
-		cap_free, free_ok := m.Metrics["btrfs_unused"].GroupedValues[disk]
+	for disk, metric_value := range node_exporter.Metrics["btrfs_errors"].GroupedValues {
+		cap_total, total_ok := node_exporter.Metrics["btrfs_total"].GroupedValues[disk]
+		cap_free, free_ok := node_exporter.Metrics["btrfs_unused"].GroupedValues[disk]
 		if strings.Contains(disk, "loop") && total_ok && free_ok {
 			continue
 		}
@@ -72,20 +73,35 @@ func handleComponentNasv3(c *gin.Context) {
 		disks = append(disks, gin.H{"display_name": disk, "btrfs_error": metric_value != 0, "capacity_free": cap_free, "capacity_total": cap_total})
 	}
 
+	backrest_ok := fmt.Sprintf("%.f", backrest.Metrics["task_status"].GroupedValues["backup"])
+	backrest_ok = strings.Replace(backrest_ok, "0", "success", 1)
+	backrest_ok = strings.Replace(backrest_ok, "-1", "unknown", 1)
+	backrest_ok = strings.Replace(backrest_ok, "1", "error", 1)
+	backrest_integrity := fmt.Sprintf("%d", backrest.Metrics["task_status"].GroupedValues["check"])
+	backrest_integrity = strings.Replace(backrest_ok, "0", "success", 1)
+	backrest_integrity = strings.Replace(backrest_ok, "-1", "unknown", 1)
+	backrest_integrity = strings.Replace(backrest_ok, "1", "error", 1)
+	if backrest.Metrics["file_warning"].Value != 0 {
+		backrest_integrity = "warning"
+	}
+
+	scraper_status, scraper_reason := common.MergeScrapersStatus(node_exporter, backrest)
 	c.JSON(http.StatusOK, gin.H{
-		"status":           m.GetStatus(),
-		"reason":           m.GetReason(),
-		"url":              "http://10.0.0.19",
-		"backup_url":       "http://10.0.0.19:9898",
-		"parity_status":    "TODO",
-		"parity_timestamp": "20240822T03:00:00Z",
-		"parity_reason":    "Success",
-		"backup_status":    "TODO",
-		"backup_timestamp": "20240822T03:00:00Z",
-		"backup_reason":    "Success",
-		"disk_total":       m.Metrics["fs_total"].Value,
-		"disk_free":        m.Metrics["fs_free"].Value,
-		"disks":            disks,
+		"status":             scraper_status,
+		"reason":             scraper_reason,
+		"url":                "http://10.0.0.19",
+		"backup_url":         "http://10.0.0.19:9898",
+		"parity_status":      "TODO",
+		"parity_timestamp":   "20240822T03:00:00Z",
+		"parity_reason":      "Success",
+		"backup_status":      backrest_ok,
+		"backup_integrity":   backrest_integrity,
+		"backup_bytes_total": backrest.Metrics["bytes_total"].Value,
+		"backup_bytes_added": backrest.Metrics["bytes_added"].Value,
+		"backup_diration":    backrest.Metrics["task_duration"].GroupedValues["backup"],
+		"disk_total":         node_exporter.Metrics["fs_total"].Value,
+		"disk_free":          node_exporter.Metrics["fs_free"].Value,
+		"disks":              disks,
 	})
 }
 

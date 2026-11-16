@@ -2,7 +2,7 @@
 import { Button, Card, CardActionArea, CardActions, CardContent, Stack, Typography } from "@mui/material";
 import useSWR from "swr";
 import { FallbackCardError, FallbackCardLoading } from "./FallbackCards";
-import { ComponentContentValue, ComponentHeader } from "../parts/Component";
+import { ComponentCheckmarkStatus, ComponentContentValue, ComponentHeader } from "../parts/Component";
 import { format } from "util";
 
 
@@ -22,6 +22,7 @@ export default function NasHealth() {
   }
   type nasDisk = { display_name: string, smart_ok: boolean, btrfs_error: boolean, capacity_total: Number, capacity_free: Number }
   const inTB = (x: any) => { return (Number(x) / 1000000000000).toFixed(2) }
+  const inGB = (x: any) => { return (Number(x) / 1000000000).toFixed(2) }
   const sortfunc = (a: nasDisk, b: nasDisk) => { return a.display_name > b.display_name ? 1 : -1 }
   const percent = (Number(data.disk_free) / Number(data.disk_total) * 100).toFixed(1)
 
@@ -32,8 +33,11 @@ export default function NasHealth() {
         {ComponentHeader(NAME, "/icons/unraid-logo.png", API_URL, data.status, data.reason)}
         <CardContent>
           <ComponentContentValue label={"Parity Check"} value={data.parity_status} />
-          <ComponentContentValue label={"Backup"} value={data.backup_status + " - X days"} />
           <ComponentContentValue label={"Free"} value={inTB(data.disk_free) + " / " + inTB(data.disk_total) + " TB (" + percent + "%)"} />
+        </CardContent>
+        <CardContent>
+          <NasBackupStatus backup={data.backup_status}  integrity={data.backup_integrity} />
+          <ComponentContentValue label={"Size: "} value={format("%s TB (+%s GB)", inTB(data.backup_bytes_total), inGB(data.backup_bytes_added))} />
         </CardContent>
         <CardContent>
           Disks (Free Space)
@@ -49,4 +53,27 @@ export default function NasHealth() {
   );
 }
 
+
+export function NasBackupStatus({ backup, integrity }: { backup: string, integrity: string }) {
+  return <Stack justifyContent={"space-between"} direction={"row"}>
+    <Typography component={"span"} variant="overline" align="left">Backup:
+
+    </Typography>
+    <ComponentCheckmarkStatus status={backup} />
+    <Typography component={"span"} variant="overline" align="right" marginLeft={"10px"}>
+      Integrity:
+    </Typography>
+    <ComponentCheckmarkStatus status={integrity} />
+  </Stack>
+}
+
+
+export function NasBackupSize({ added_gb, total_tb }: { added_gb: string, total_tb: string }) {
+  return <Stack justifyContent={"space-between"} direction={"row"}>
+    <Typography component={"span"} variant="overline" align="left">Size:</Typography>
+    <Typography component={"span"} variant="overline" align="right" marginLeft={"10px"}>
+      {total_tb} TB (+{added_gb} GB)
+    </Typography>
+  </Stack>
+}
 

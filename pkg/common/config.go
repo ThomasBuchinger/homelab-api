@@ -38,9 +38,10 @@ type ConfigFileContent struct {
 			ConsoleUrl          string
 		}
 		Nas struct {
-			NodeExporter     string
-			UnraidExporter   string
-			SmartctlExporter string
+			NodeExporter       string
+			UnraidExporter     string
+			SmartctlExporter   string
+			BackrestMetricsUrl string
 		}
 		Syncthing struct {
 			MetricsUrl         string
@@ -80,6 +81,7 @@ func SetupViperConfig() {
 	viper.SetDefault("homelab.nas.nodeExporter", "http://10.0.0.19:9100/metrics")
 	viper.SetDefault("homelab.nas.unraidExporter", "http://10.0.0.19:9101/unraid/metrics")
 	viper.SetDefault("homelab.nas.smartctlExporter", "http://10.0.0.19:9633/metrics")
+	viper.SetDefault("homelab.nas.backrestMetricsUrl", "http://10.0.0.19:9898/metrics")
 	viper.SetDefault("homelab.paperless.metricsUrl", "http://paperless.10.0.0.21.nip.io/metrics")
 	viper.SetDefault("homelab.paperless.newDocTag", "28")
 	viper.SetDefault("homelab.syncthing.metricsUrl", "http://syncthing.10.0.0.21.nip.io/metrics")

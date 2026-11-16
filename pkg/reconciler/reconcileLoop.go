@@ -12,6 +12,7 @@ var ProdMetric *metricscraper.MetricsReconciler
 var EvergreenMetric *metricscraper.MetricsReconciler
 var SyncthingMetric *metricscraper.MetricsReconciler
 var NasNodeMetrics *metricscraper.MetricsReconciler
+var NasBackrestMetrics *metricscraper.MetricsReconciler
 var NasSmartMetrics *metricscraper.MetricsReconciler
 var PaperlessMetrics *metricscraper.MetricsReconciler
 var FrigateMetrics *metricscraper.MetricsReconciler
@@ -51,6 +52,14 @@ func ReconcileLoop() {
 	NasNodeMetrics.AddMetric("fs_total", metricscraper.Metric{Name: "node_filesystem_size_bytes", Labels: map[string]string{"mountpoint": "/mnt/user"}})
 
 	NasSmartMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Nas.SmartctlExporter)
+
+	NasBackrestMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Nas.BackrestMetricsUrl)
+	NasBackrestMetrics.AddMetric("bytes_added", metricscraper.Metric{Name: "backrest_backup_bytes_added"})
+	NasBackrestMetrics.AddMetric("bytes_total", metricscraper.Metric{Name: "backrest_backup_bytes_processed"})
+	NasBackrestMetrics.AddMetric("file_warning", metricscraper.Metric{Name: "backrest_backup_file_warnings"})
+	NasBackrestMetrics.AddMetric("task_status", metricscraper.Metric{Name: "backrest_last_task_status", GroupBy: "task_type"})
+	NasBackrestMetrics.AddMetric("task_duration", metricscraper.Metric{Name: "backrest_tasks_duration_secs", GroupBy: "task_type"})
+	NasBackrestMetrics.AddMetric("task_runs", metricscraper.Metric{Name: "backrest_tasks_run_total", GroupBy: "task_type"})
 
 	PaperlessMetrics = metricscraper.NewMetricsReconciler(conf.Homelab.Paperless.MetricsUrl)
 	PaperlessMetrics.AddMetric("tag_name", metricscraper.Metric{Name: "paperless_tag_info", Labels: map[string]string{"id": conf.Homelab.Paperless.NewDocTag}, GroupBy: "name"})
@@ -93,6 +102,7 @@ func ReconcileLoop() {
 		ProdMetric.Reconcile()
 		SyncthingMetric.Reconcile()
 		NasNodeMetrics.Reconcile()
+		NasBackrestMetrics.Reconcile()
 		PaperlessMetrics.Reconcile()
 
 		OpenwrtMetrics.Reconcile()

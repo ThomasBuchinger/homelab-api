@@ -1,5 +1,5 @@
 "use client"
-import { Circle } from "@mui/icons-material";
+import { CancelOutlined, CheckCircleOutlineOutlined, Circle, Height, QuestionMarkOutlined, ReportProblemOutlined } from "@mui/icons-material";
 import { Avatar, CardHeader, Icon, IconButton, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 
@@ -61,4 +61,14 @@ export function ComponentDoorbell({ label, wifi_rating, ha_status}: { label: str
 export function ComponentHomeAssistantStatus({ha_status}: {ha_status: number}) {
   const color = ha_status == 1 ? "green": "red"
   return <img src={"/icons/HomeAssistant_status_" + color + ".svg"} alt={"HomeAssistant Status: " + color} width={24} ></img>
+}
+
+export function ComponentCheckmarkStatus({status}: {status: string}){
+  switch (status) {
+    case "success": return <CheckCircleOutlineOutlined htmlColor={"green"} fontSize="small" />
+    case "unknown": return <QuestionMarkOutlined htmlColor={"blue"} fontSize="small" />
+    case "error": return <CancelOutlined htmlColor={"red"} fontSize="small" />
+    case "warning": return <ReportProblemOutlined htmlColor={"orange"} fontSize="small" />
+    default: return status
+  }
 }
