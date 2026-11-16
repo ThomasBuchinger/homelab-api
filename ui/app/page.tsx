@@ -14,23 +14,21 @@ export default function Home() {
       <Grid size={{ xs: 12 }}>
         <Divider variant='fullWidth' className={styles.code} style={{ marginBottom: "50px" }} > HomeLab Overview</Divider>
       </Grid>
-      <Grid>
+      <Grid size={{sm: 12, md: 6, lg: 3, xl: 2}}>
         <KubernetesHealth />
-      </Grid>
-      <Grid>
-        <NasHealth />
-      </Grid>
-      <Grid>
+        <Divider style={{ marginTop: "10px", marginBottom: "10px" }}></Divider>
         <PaperlessHealth />
       </Grid>
-      <Grid>
+      <Grid size={{sm: 12, md: 6, lg: 3, xl: 2}}>
+        <NasHealth />
+      </Grid>
+      <Grid size={{sm: 12, md: 6, lg: 3, xl: 2}}>
         <SyncthingHealth />
       </Grid>
-      <Grid>
-        <TvHealth />
-      </Grid>
-      <Grid>
+      <Grid size={{sm: 12, md: 6, lg: 3, xl: 2}}>
         <SmarthomeHealth />
+        <Divider style={{ marginTop: "10px", marginBottom: "10px" }}></Divider>
+        <TvHealth />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <Divider variant='fullWidth' className={styles.code} style={{ marginTop: "50px", marginBottom: "50px" }}> Links</Divider>
