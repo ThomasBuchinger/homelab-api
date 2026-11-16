@@ -11,6 +11,8 @@ const MOCK_METRICS string = `
 # Fake Test Metrics
 fake_up 1
 fake_down 0
+fake_syntax_test{syntax="with_space",test_label="label with spaces"} 1
+
 fake_pods_total{namespace="ns1",deployment="name"} 2
 fake_pods_total{namespace="ns2",deployment="name"} 2
 
@@ -132,6 +134,13 @@ func Test_MetricsReconciler_ProcessMetric_exact_name_match_ignores_similar_prefi
 	})
 	if value_map[metricscraper.MetricRootKey] != 1 {
 		t.Error("Only the exact metric node_network_carrier_up{device=phy0-ap0} should match. Value: ", value_map)
+	}
+}
+
+func Test_MetricsReconciler_ProcessMetric_handlers_spaces_in_label(t *testing.T) {
+	value_map, _ := metricscraper.ProcessMetric(MOCK_METRICS, metricscraper.Metric{Name: "fake_syntax_test", Labels: map[string]string{"syntax": "with_space"}})
+	if value_map[metricscraper.MetricRootKey] != 1 {
+		t.Error("Metric fake_syntax_test should be 1. Value: ", value_map)
 	}
 }
 

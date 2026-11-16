@@ -68,13 +68,16 @@ func ProcessMetric(scrapeResult string, metric Metric) (map[string]float64, bool
 	}
 
 	for _, v := range strings.Split(scrapeResult, "\n") {
-		if strings.HasPrefix(v, "#") || strings.TrimSpace(v) == "" || len(strings.Split(v, " ")) != 2 {
+		// Label values may contain spaces (e.g. friendly_name), so the value
+		// is the last field and the metric name is everything before it.
+		fields := strings.Fields(v)
+		if strings.HasPrefix(v, "#") || len(fields) < 2 {
 			continue
 		}
 		key = MetricRootKey // Reset key variable for each line
 
-		name := strings.TrimSpace(strings.Split(v, " ")[0])
-		value, err := strconv.ParseFloat(strings.TrimSpace(strings.Split(v, " ")[1]), 64)
+		name := strings.Join(fields[:len(fields)-1], " ")
+		value, err := strconv.ParseFloat(fields[len(fields)-1], 64)
 		if err != nil {
 			continue
 		}

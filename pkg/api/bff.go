@@ -253,9 +253,9 @@ func HumanUptime(uptimeSecs float64) (readable string, datetime string) {
 		{"s", 1},
 	}
 
-	end := time.Now().Add(time.Duration(uptimeSecs * float64(time.Second)))
+	end := time.Now().Add(time.Duration(uptimeSecs * float64(time.Second) * -1))
 
-	whole := int64(uptimeSecs) // truncate fractional seconds
+	whole := int64(uptimeSecs)
 	readable = fmt.Sprintf("%d s", whole)
 	for _, u := range units {
 		if uptimeSecs >= u.secs {
