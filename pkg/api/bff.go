@@ -77,7 +77,7 @@ func handleComponentNasv3(c *gin.Context) {
 	backrest_ok = strings.Replace(backrest_ok, "0", "success", 1)
 	backrest_ok = strings.Replace(backrest_ok, "-1", "unknown", 1)
 	backrest_ok = strings.Replace(backrest_ok, "1", "error", 1)
-	backrest_integrity := fmt.Sprintf("%d", backrest.Metrics["task_status"].GroupedValues["check"])
+	backrest_integrity := fmt.Sprintf("%.f", backrest.Metrics["task_status"].GroupedValues["check"])
 	backrest_integrity = strings.Replace(backrest_ok, "0", "success", 1)
 	backrest_integrity = strings.Replace(backrest_ok, "-1", "unknown", 1)
 	backrest_integrity = strings.Replace(backrest_ok, "1", "error", 1)
