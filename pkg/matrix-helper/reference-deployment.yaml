@@ -1,0 +1,127 @@
+# Reference deployment for matrix-helper.
+#
+# The real manifests live in the evergreen repository; this file is the
+# tracked source of truth for what they should contain. It is NOT applied
+# directly to the cluster.
+#
+# matrix-helper is a long-running process that keeps the Matrix
+# Authentication Service (MAS) client_secret in sync with the Keycloak
+# source secret. It runs exactly one replica.
+
+---
+# The ServiceAccount already exists (also used by the room-management
+# script). It is referenced here so the reference is self-contained.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: matrix-config
+  namespace: matrix
+
+---
+# Role in the matrix namespace: read and update the MAS config secret, and
+# read/patch the MAS deployment (for the restart).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: matrix-helper
+  namespace: matrix
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "update"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "patch"]
+
+---
+# Role in the keycloak namespace: read the source secret only.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: matrix-helper
+  namespace: keycloak
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]
+
+---
+# Bind the existing matrix-config ServiceAccount to the matrix Role.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: matrix-helper
+  namespace: matrix
+subjects:
+- kind: ServiceAccount
+  name: matrix-config
+  namespace: matrix
+roleRef:
+  kind: Role
+  name: matrix-helper
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Bind the existing matrix-config ServiceAccount (in the matrix namespace)
+# to the keycloak Role.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: matrix-helper
+  namespace: keycloak
+subjects:
+- kind: ServiceAccount
+  name: matrix-config
+  namespace: matrix
+roleRef:
+  kind: Role
+  name: matrix-helper
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matrix-helper
+  namespace: matrix
+  labels:
+    app.kubernetes.io/name: matrix-helper
+    app.kubernetes.io/part-of: matrix-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: matrix-helper
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: matrix-helper
+        app.kubernetes.io/part-of: matrix-stack
+    spec:
+      serviceAccountName: matrix-config
+      containers:
+      - name: matrix-helper
+        image: ghcr.io/thomasbuchinger/homelab-api:latest
+        command: ["/app/matrix-helper"]
+        ports:
+        - name: http
+          containerPort: 8080
+        env:
+        - name: MATRIX_HELPER_CLIENTSECRET_NAMESPACE
+          value: "keycloak"
+        - name: MATRIX_HELPER_CLIENTSECRET_NAME
+          value: "keycloak-client-secret-client-matrix"
+        - name: MATRIX_HELPER_CLIENTSECRET_KEY
+          value: "CLIENT_SECRET"
+        livenessProbe:
+          httpGet:
+            path: /api/livez
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/readyz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10

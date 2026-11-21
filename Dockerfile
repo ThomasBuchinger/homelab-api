@@ -28,6 +28,7 @@ RUN go build ./cmd/public-api
 RUN go build ./cmd/syncthing-helper
 RUN go build ./cmd/copy-geoip-for-envoy
 RUN go build ./cmd/unraid-api
+RUN go build ./cmd/matrix-helper
 RUN go test ./...
 
 FROM gcr.io/distroless/static-debian13 AS app
@@ -43,5 +44,6 @@ COPY --from=api /go/github.com/thomasbuchinger/homelab-api/public-api /app
 COPY --from=api /go/github.com/thomasbuchinger/homelab-api/syncthing-helper /app
 COPY --from=api /go/github.com/thomasbuchinger/homelab-api/copy-geoip-for-envoy /app
 COPY --from=api /go/github.com/thomasbuchinger/homelab-api/unraid-api /app
+COPY --from=api /go/github.com/thomasbuchinger/homelab-api/matrix-helper /app
 
 ENTRYPOINT ["/app/homelab-api"]

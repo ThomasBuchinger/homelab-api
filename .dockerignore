@@ -6,6 +6,7 @@
 /public-api
 /syncthing-helper
 /copy-geoip-for-envoy
+/matrix-helper
 /config/secret.yaml
 
 
