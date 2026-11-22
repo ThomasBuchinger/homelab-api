@@ -1,16 +1,6 @@
 # Reference deployment for matrix-helper.
 #
-# The real manifests live in the evergreen repository; this file is the
-# tracked source of truth for what they should contain. It is NOT applied
-# directly to the cluster.
-#
-# matrix-helper is a long-running process that keeps the Matrix
-# Authentication Service (MAS) client_secret in sync with the Keycloak
-# source secret. It runs exactly one replica.
-
 ---
-# The ServiceAccount already exists (also used by the room-management
-# script). It is referenced here so the reference is self-contained.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -18,8 +8,6 @@ metadata:
   namespace: matrix
 
 ---
-# Role in the matrix namespace: read and update the MAS config secret, and
-# read/patch the MAS deployment (for the restart).
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -32,17 +20,26 @@ rules:
 - apiGroups: ["apps"]
   resources: ["deployments"]
   verbs: ["get", "patch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
 
 ---
-# Role in the keycloak namespace: read the source secret only.
+# ClusterRole: read the source client secret only, scoped by name via
+# resourceNames. The grant is cluster-scoped (that secret name in any
+# namespace), which in practice is the single secret in keycloak; using a
+# ClusterRole avoids deploying any objects into the keycloak namespace.
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   name: matrix-helper
-  namespace: keycloak
 rules:
 - apiGroups: [""]
   resources: ["secrets"]
+  resourceNames: ["keycloak-client-secret-client-matrix"]
   verbs: ["get"]
 
 ---
@@ -62,19 +59,18 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 
 ---
-# Bind the existing matrix-config ServiceAccount (in the matrix namespace)
-# to the keycloak Role.
+# Bind the matrix-config ServiceAccount (in the matrix namespace) to the
+# ClusterRole.
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: matrix-helper
-  namespace: keycloak
 subjects:
 - kind: ServiceAccount
   name: matrix-config
   namespace: matrix
 roleRef:
-  kind: Role
+  kind: ClusterRole
   name: matrix-helper
   apiGroup: rbac.authorization.k8s.io
 
@@ -113,6 +109,16 @@ spec:
           value: "keycloak-client-secret-client-matrix"
         - name: MATRIX_HELPER_CLIENTSECRET_KEY
           value: "CLIENT_SECRET"
+        - name: MATRIX_HELPER_BOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: eso-bot-credentials
+              key: BOT_USERNAME
+        - name: MATRIX_HELPER_BOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: eso-bot-credentials
+              key: BOT_PASSWORD
         livenessProbe:
           httpGet:
             path: /api/livez

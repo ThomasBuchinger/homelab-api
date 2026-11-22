@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"time"
@@ -11,12 +12,15 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/remotecommand"
 )
 
 type KubernetesClient struct {
-	k8sClient *kubernetes.Clientset
-	Logger    *zap.SugaredLogger
+	k8sClient  *kubernetes.Clientset
+	restConfig *rest.Config
+	Logger     *zap.SugaredLogger
 }
 
 func NewKubernetesClient() (*KubernetesClient, error) {
@@ -31,8 +35,9 @@ func NewKubernetesClient() (*KubernetesClient, error) {
 		return nil, err
 	}
 	return &KubernetesClient{
-		k8sClient: clientset,
-		Logger:    common.GetServerConfig().RootLogger.Named("Kubernetes"),
+		k8sClient:  clientset,
+		restConfig: config,
+		Logger:     common.GetServerConfig().RootLogger.Named("Kubernetes"),
 	}, nil
 }
 
@@ -66,4 +71,48 @@ func (k *KubernetesClient) UpdateSecret(namespace string, secret *corev1.Secret)
 
 	k.Logger.Infof("OK: Updated Secret: %s/%s", namespace, secret.Name)
 	return nil
+}
+
+func (k *KubernetesClient) GetPodByLabel(namespace, labelSelector string) (podNamespace, podName string, err error) {
+	pods, err := k.k8sClient.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labelSelector})
+	if err != nil {
+		k.Logger.Errorf("Failed to List Pods: namespace=%s selector=%q: %s", namespace, labelSelector, err.Error())
+		return "", "", err
+	}
+	if len(pods.Items) == 0 {
+		k.Logger.Errorf("No Pods found: namespace=%s selector=%q", namespace, labelSelector)
+		return "", "", fmt.Errorf("no pods found matching %q in namespace %s", labelSelector, namespace)
+	}
+	return pods.Items[0].Namespace, pods.Items[0].Name, nil
+}
+
+func (k *KubernetesClient) ExecInPod(podNamespace, podName, container string, command []string) (stdout, stderr string, err error) {
+	req := k.k8sClient.CoreV1().RESTClient().Post().
+		Resource("pods").
+		Name(podName).
+		Namespace(podNamespace).
+		SubResource("exec").
+		VersionedParams(&corev1.PodExecOptions{
+			Container: container,
+			Command:   command,
+			Stdout:    true,
+			Stderr:    true,
+		}, scheme.ParameterCodec)
+
+	executor, err := remotecommand.NewSPDYExecutor(k.restConfig, "POST", req.URL())
+	if err != nil {
+		k.Logger.Errorf("Failed to create exec executor: pod=%s/%s container=%s: %s", podNamespace, podName, container, err.Error())
+		return "", "", err
+	}
+
+	var stdoutBuf, stderrBuf bytes.Buffer
+	err = executor.StreamWithContext(context.Background(), remotecommand.StreamOptions{
+		Stdout: &stdoutBuf,
+		Stderr: &stderrBuf,
+	})
+	if err != nil {
+		k.Logger.Errorf("Failed to exec in Pod: pod=%s/%s container=%s command=%v: %s", podNamespace, podName, container, command, err.Error())
+		return stdoutBuf.String(), stderrBuf.String(), err
+	}
+	return stdoutBuf.String(), stderrBuf.String(), nil
 }
